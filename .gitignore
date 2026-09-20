@@ -1,0 +1,10 @@
+/_build/
+/deps/
+/demo/_build/
+/demo/deps/
+/*.dump
+erl_crash.dump
+
+# Generated test/demo databases and local credentials
+.env
+*.local.exs
