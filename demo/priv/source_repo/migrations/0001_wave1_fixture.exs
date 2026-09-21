@@ -24,7 +24,23 @@ defmodule PgToEctoDemo.SourceRepo.Migrations.Wave1Fixture do
 
     create table(:orders, primary_key: false) do
       add :id, :bigserial, primary_key: true
-      add :customer_id, references(:customers, on_delete: :delete_all), null: false
+
+      add :customer_id,
+          references(:customers, on_delete: :delete_all, on_update: :nothing),
+          null: false
+
+      add :delete_restrict_customer_id,
+          references(:customers, on_delete: :restrict, on_update: :update_all),
+          null: true
+
+      add :delete_nilify_customer_id,
+          references(:customers, on_delete: :nilify_all, on_update: :restrict),
+          null: true
+
+      add :update_nilify_customer_id,
+          references(:customers, on_delete: :nothing, on_update: :nilify_all),
+          null: true
+
       add :external_ref, :text, null: false
       add :quantity, :integer, null: false, default: 1
       add :shipped, :boolean, null: false, default: false

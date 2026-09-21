@@ -21,7 +21,11 @@ defmodule PgToEcto.Managed do
   def normalize(value) when is_binary(value) do
     case Sourceror.parse_string(value) do
       {:ok, ast} ->
-        ast_text = ast |> Macro.prewalk(fn node -> strip_metadata(node) end) |> Macro.to_string()
+        ast_text =
+          ast
+          |> Macro.prewalk(fn node -> strip_metadata(node) end)
+          |> :erlang.term_to_binary()
+
         ast_text <> "\ncomments:" <> normalized_comments(value)
 
       _ ->
@@ -180,6 +184,8 @@ defmodule PgToEcto.Managed do
     text
     |> String.split("\n")
     |> Enum.with_index()
-    |> Enum.map_join("\n", fn {line, index} -> if index == 0, do: line, else: indent <> line end)
+    |> Enum.map_join("\n", fn {line, index} ->
+      if index == 0 or String.trim(line) == "", do: line, else: indent <> line
+    end)
   end
 end

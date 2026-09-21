@@ -11,9 +11,9 @@ defmodule PgToEcto.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "PgToEcto",
-      description: "Phase 0 source-management macros for generated Ecto regions.",
-      source_url: "https://github.com/nicholas-moen/pg_to_ecto",
-      homepage_url: "https://github.com/nicholas-moen/pg_to_ecto",
+      description: "Turn existing PostgreSQL database tables into Ecto migrations and schemas.",
+      source_url: "https://github.com/arcanemachine/pg_to_ecto",
+      homepage_url: "https://github.com/arcanemachine/pg_to_ecto",
       docs: [main: "readme", extras: ["README.md", "CHANGELOG.md"]],
       package: package(),
       test_coverage: [tool: ExUnit]
@@ -37,7 +37,7 @@ defmodule PgToEcto.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/nicholas-moen/pg_to_ecto"},
+      links: %{"GitHub" => "https://github.com/arcanemachine/pg_to_ecto"},
       files: ["lib", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE"]
     ]
   end

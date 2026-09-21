@@ -64,7 +64,7 @@ defmodule PgToEctoDemo.DatabaseTest do
     assert column(rows, "sales", "invoices", "code") == {"NO", nil, "text"}
   end
 
-  test "source fixture includes selected and unselected foreign key delete actions" do
+  test "source fixture includes the supported selected and unselected foreign key actions" do
     rows =
       rows!(
         :source,
@@ -74,10 +74,17 @@ defmodule PgToEctoDemo.DatabaseTest do
           (SELECT attname FROM pg_attribute
            WHERE attrelid = conrelid AND attnum = conkey[1]),
           confrelid::regclass::text,
+          CASE confupdtype
+            WHEN 'c' THEN 'CASCADE'
+            WHEN 'n' THEN 'SET NULL'
+            WHEN 'r' THEN 'RESTRICT'
+            WHEN 'a' THEN 'NO ACTION'
+          END,
           CASE confdeltype
             WHEN 'c' THEN 'CASCADE'
             WHEN 'n' THEN 'SET NULL'
-            ELSE confdeltype::text
+            WHEN 'r' THEN 'RESTRICT'
+            WHEN 'a' THEN 'NO ACTION'
           END
         FROM pg_constraint
         WHERE contype = 'f'
@@ -86,8 +93,33 @@ defmodule PgToEctoDemo.DatabaseTest do
         """
       )
 
-    assert ["orders", "customer_id", "customers", "CASCADE"] in rows
-    assert ["orders", "audit_event_id", "internal.audit_events", "SET NULL"] in rows
+    assert ["orders", "customer_id", "customers", "NO ACTION", "CASCADE"] in rows
+
+    assert [
+             "orders",
+             "delete_restrict_customer_id",
+             "customers",
+             "CASCADE",
+             "RESTRICT"
+           ] in rows
+
+    assert [
+             "orders",
+             "delete_nilify_customer_id",
+             "customers",
+             "RESTRICT",
+             "SET NULL"
+           ] in rows
+
+    assert [
+             "orders",
+             "update_nilify_customer_id",
+             "customers",
+             "SET NULL",
+             "NO ACTION"
+           ] in rows
+
+    assert ["orders", "audit_event_id", "internal.audit_events", "NO ACTION", "SET NULL"] in rows
   end
 
   test "source fixture includes ordinary and unique indexes" do

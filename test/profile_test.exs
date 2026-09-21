@@ -280,9 +280,14 @@ defmodule PgToEctoProfileTest do
     profile_path = Path.join(File.cwd!(), "lib/pg_to_ecto_profile_test/order.ex")
     refute File.exists?(profile_path)
 
-    assert {:ok, %PgToEcto.Result{files: [], diagnostics: []}} =
+    assert {:error,
+            %PgToEcto.Result{
+              files: [],
+              diagnostics: diagnostics
+            }} =
              PgToEcto.generate(PgToEctoProfileTest.OrderedProfile, dry_run: true, force: true)
 
+    assert Enum.any?(diagnostics, &(&1.code == :repo_unavailable))
     refute File.exists?(profile_path)
   end
 

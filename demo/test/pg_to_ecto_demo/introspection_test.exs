@@ -43,6 +43,9 @@ defmodule PgToEctoDemo.IntrospectionTest do
     assert Enum.map(table(model, %{schema: "public", table: "orders"}).columns, & &1.name) == [
              "id",
              "customer_id",
+             "delete_restrict_customer_id",
+             "delete_nilify_customer_id",
+             "update_nilify_customer_id",
              "external_ref",
              "quantity",
              "shipped",
@@ -134,34 +137,55 @@ defmodule PgToEctoDemo.IntrospectionTest do
            }
   end
 
-  test "returns selected and unselected foreign key facts", %{model: model} do
-    orders = table(model, %{schema: "public", table: "orders"})
+  describe "foreign key actions" do
+    test "returns selected and unselected foreign key facts", %{model: model} do
+      orders = table(model, %{schema: "public", table: "orders"})
 
-    assert [
-             %{
-               name: "orders_customer_id_fkey",
-               source_columns: ["customer_id"],
-               target_identity: {"public", "customers"},
-               target_columns: ["id"],
-               update_action: :no_action,
-               delete_action: :cascade,
-               mapping_disposition: :exact,
-               selected_target?: true
-             }
-           ] = Enum.filter(orders.foreign_keys, &(&1.name == "orders_customer_id_fkey"))
+      assert [
+               %{
+                 name: "orders_customer_id_fkey",
+                 source_columns: ["customer_id"],
+                 target_identity: {"public", "customers"},
+                 target_columns: ["id"],
+                 update_action: :no_action,
+                 delete_action: :cascade,
+                 mapping_disposition: :exact,
+                 selected_target?: true
+               }
+             ] = Enum.filter(orders.foreign_keys, &(&1.name == "orders_customer_id_fkey"))
 
-    assert [
-             %{
-               name: "orders_audit_event_id_fkey",
-               source_columns: ["audit_event_id"],
-               target_identity: {"internal", "audit_events"},
-               target_columns: ["id"],
-               update_action: :no_action,
-               delete_action: :set_null,
-               mapping_disposition: :omitted_with_warning,
-               selected_target?: false
+      assert [
+               %{
+                 name: "orders_audit_event_id_fkey",
+                 source_columns: ["audit_event_id"],
+                 target_identity: {"internal", "audit_events"},
+                 target_columns: ["id"],
+                 update_action: :no_action,
+                 delete_action: :set_null,
+                 mapping_disposition: :omitted_with_warning,
+                 selected_target?: false
+               }
+             ] = Enum.filter(orders.foreign_keys, &(&1.name == "orders_audit_event_id_fkey"))
+    end
+
+    test "returns the supported delete and update action matrix", %{model: model} do
+      orders = table(model, %{schema: "public", table: "orders"})
+
+      action_matrix =
+        orders.foreign_keys
+        |> Enum.filter(& &1.selected_target?)
+        |> Map.new(fn foreign_key ->
+          {List.first(foreign_key.source_columns),
+           {foreign_key.update_action, foreign_key.delete_action}}
+        end)
+
+      assert action_matrix == %{
+               "customer_id" => {:no_action, :cascade},
+               "delete_restrict_customer_id" => {:cascade, :restrict},
+               "delete_nilify_customer_id" => {:restrict, :set_null},
+               "update_nilify_customer_id" => {:set_null, :no_action}
              }
-           ] = Enum.filter(orders.foreign_keys, &(&1.name == "orders_audit_event_id_fkey"))
+    end
   end
 
   test "returns ordinary and unique index identities and columns", %{model: model} do

@@ -2,8 +2,8 @@ defmodule PgToEcto do
   @moduledoc """
   Generate Ecto source from an explicitly configured PostgreSQL profile.
 
-  The profile and public result spine are available before database
-  introspection and renderers are added.
+  The generator validates a profile, introspects its selected PostgreSQL
+  tables, and renders one managed baseline migration.
   """
 
   @type generation_option :: {:dry_run, boolean()} | {:force, boolean()}
@@ -24,10 +24,8 @@ defmodule PgToEcto do
        when is_atom(profile_module) and not is_nil(profile_module) do
     try do
       case PgToEcto.Profile.validate(profile_module) do
-        {:ok, _profile, diagnostics} ->
-          _dry_run = Keyword.fetch!(options, :dry_run)
-          _force = Keyword.fetch!(options, :force)
-          {:ok, %PgToEcto.Result{files: [], diagnostics: diagnostics}}
+        {:ok, profile, profile_diagnostics} ->
+          generate_baseline(profile, profile_diagnostics, options)
 
         {:error, diagnostics} ->
           {:error, %PgToEcto.Result{files: [], diagnostics: diagnostics}}
@@ -72,6 +70,53 @@ defmodule PgToEcto do
            "PgToEcto.generate/2 requires an explicit generator profile module."
          )
        ]
+     }}
+  end
+
+  defp generate_baseline(profile, profile_diagnostics, _options) do
+    with {:ok, model} <- PgToEcto.Introspection.introspect_profile(profile),
+         {:ok, rendered} <- PgToEcto.Baseline.render(profile, model) do
+      {:ok,
+       %PgToEcto.Result{
+         files: [],
+         diagnostics: profile_diagnostics ++ rendered.diagnostics
+       }}
+    else
+      {:error, {:repo_unavailable, repo}} ->
+        generation_error_result(
+          profile_diagnostics,
+          :repo_unavailable,
+          "The configured Repo #{inspect(repo)} is not running. Start it before generating a baseline migration."
+        )
+
+      {:error, {:missing_selected_tables, identities}} ->
+        generation_error_result(
+          profile_diagnostics,
+          :missing_selected_table,
+          "PgToEcto could not find selected table(s): #{Enum.map_join(identities, ", ", fn {schema, table} -> schema <> "." <> table end)}."
+        )
+
+      {:error, diagnostics} when is_list(diagnostics) ->
+        {:error,
+         %PgToEcto.Result{
+           files: [],
+           diagnostics: profile_diagnostics ++ diagnostics
+         }}
+
+      {:error, reason} ->
+        generation_error_result(
+          profile_diagnostics,
+          :generation_error,
+          "PgToEcto could not generate the baseline migration: #{inspect(reason)}."
+        )
+    end
+  end
+
+  defp generation_error_result(profile_diagnostics, code, message) do
+    {:error,
+     %PgToEcto.Result{
+       files: [],
+       diagnostics: profile_diagnostics ++ [diagnostic(:error, code, message)]
      }}
   end
 
