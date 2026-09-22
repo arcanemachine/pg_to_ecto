@@ -192,7 +192,7 @@ defmodule PgToEcto.Canonical do
 
     %{
       identity: %{schema: elem(table_identity, 0), table: elem(table_identity, 1)},
-      selection: Map.take(selection, [:module, :file, :source_name]),
+      selection: Map.take(selection, [:module, :file, :source_name, :overrides]),
       relation_kind: relation_kind(Map.get(row, :relation_kind)),
       columns: columns,
       primary_key: primary_key,

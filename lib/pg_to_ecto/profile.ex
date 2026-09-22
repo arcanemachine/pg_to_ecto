@@ -324,8 +324,10 @@ defmodule PgToEcto.Profile do
     module = Map.get(table, :module)
     file = Map.get(table, :file)
     options = Map.get(table, :options, [])
+    overrides = Map.get(table, :overrides, [])
 
     diagnostics = validate_table_options(options, diagnostics)
+    diagnostics = validate_overrides(overrides, diagnostics)
 
     {diagnostics, identity} =
       case normalize_table_name(name, prefix) do
@@ -412,7 +414,8 @@ defmodule PgToEcto.Profile do
        Map.merge(identity, %{
          module: module,
          file: file,
-         source_name: name
+         source_name: name,
+         overrides: overrides
        })}
     else
       {diagnostics, nil}
@@ -423,6 +426,42 @@ defmodule PgToEcto.Profile do
     {diagnostics ++
        [diagnostic(:error, :invalid_table, "The profile contains an invalid table declaration.")],
      nil}
+  end
+
+  defp validate_overrides(overrides, diagnostics) when is_list(overrides) do
+    if Enum.all?(overrides, fn
+         {:skip_assocs, associations} ->
+           is_list(associations) and Enum.all?(associations, &is_atom/1)
+
+         %{kind: kind, name: name, options: options}
+         when kind in [:field, :belongs_to, :has_one, :has_many] ->
+           is_atom(name) and not is_nil(name) and is_list(options) and Keyword.keyword?(options)
+
+         _ ->
+           false
+       end) do
+      diagnostics
+    else
+      diagnostics ++
+        [
+          diagnostic(
+            :error,
+            :invalid_table_override,
+            "Table overrides must use literal Ecto-like declarations."
+          )
+        ]
+    end
+  end
+
+  defp validate_overrides(_overrides, diagnostics) do
+    diagnostics ++
+      [
+        diagnostic(
+          :error,
+          :invalid_table_override,
+          "Table overrides must be a literal list."
+        )
+      ]
   end
 
   defp validate_table_options(options, diagnostics) when is_list(options) do

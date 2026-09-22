@@ -75,13 +75,22 @@ defmodule PgToEcto do
 
   defp generate_baseline(profile, profile_diagnostics, _options) do
     with {:ok, model} <- PgToEcto.Introspection.introspect_profile(profile),
-         {:ok, rendered} <- PgToEcto.Baseline.render(profile, model) do
+         {:ok, rendered} <- PgToEcto.Baseline.render(profile, model),
+         {:ok, schema_rendered} <-
+           PgToEcto.SchemaRenderer.render(profile, model, existing_schema_sources(profile)) do
       {:ok,
        %PgToEcto.Result{
-         files: [],
-         diagnostics: profile_diagnostics ++ rendered.diagnostics
+         files: schema_file_changes(schema_rendered.files),
+         diagnostics: profile_diagnostics ++ rendered.diagnostics ++ schema_rendered.diagnostics
        }}
     else
+      {:error, diagnostics} when is_list(diagnostics) ->
+        {:error,
+         %PgToEcto.Result{
+           files: [],
+           diagnostics: profile_diagnostics ++ diagnostics
+         }}
+
       {:error, {:repo_unavailable, repo}} ->
         generation_error_result(
           profile_diagnostics,
@@ -96,13 +105,6 @@ defmodule PgToEcto do
           "PgToEcto could not find selected table(s): #{Enum.map_join(identities, ", ", fn {schema, table} -> schema <> "." <> table end)}."
         )
 
-      {:error, diagnostics} when is_list(diagnostics) ->
-        {:error,
-         %PgToEcto.Result{
-           files: [],
-           diagnostics: profile_diagnostics ++ diagnostics
-         }}
-
       {:error, reason} ->
         generation_error_result(
           profile_diagnostics,
@@ -110,6 +112,30 @@ defmodule PgToEcto do
           "PgToEcto could not generate the baseline migration: #{inspect(reason)}."
         )
     end
+  end
+
+  defp existing_schema_sources(profile) do
+    Map.new(profile.tables, fn table ->
+      case File.read(table.file) do
+        {:ok, source} -> {table.file, source}
+        {:error, :enoent} -> {table.file, nil}
+        {:error, _reason} -> {table.file, nil}
+      end
+    end)
+  end
+
+  defp schema_file_changes(files) do
+    Enum.map(files, fn file ->
+      action =
+        case File.read(file.path) do
+          {:ok, source} when source == file.source -> :unchanged
+          {:ok, _source} -> :update
+          {:error, :enoent} -> :create
+          {:error, _reason} -> :blocked
+        end
+
+      %PgToEcto.FileChange{path: file.path, action: action}
+    end)
   end
 
   defp generation_error_result(profile_diagnostics, code, message) do

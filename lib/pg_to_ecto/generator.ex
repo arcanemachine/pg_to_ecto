@@ -45,7 +45,7 @@ defmodule PgToEcto.Generator do
                                     )
 
       @before_compile PgToEcto.Generator
-      import PgToEcto.Generator, only: [repo: 1, table: 2, migration_basename: 1]
+      import PgToEcto.Generator, only: [repo: 1, table: 2, table: 3, migration_basename: 1]
     end
   end
 
@@ -71,7 +71,12 @@ defmodule PgToEcto.Generator do
   end
 
   defmacro table(table_name, options) do
-    register_table(table_name, options, __CALLER__)
+    register_table(table_name, options, [], __CALLER__)
+  end
+
+  defmacro table(table_name, options, do: block) do
+    overrides = parse_overrides(block, __CALLER__)
+    register_table(table_name, options, overrides, __CALLER__)
   end
 
   defmacro __before_compile__(env) do
@@ -97,7 +102,7 @@ defmodule PgToEcto.Generator do
     end
   end
 
-  defp register_table(table_name, options, caller) do
+  defp register_table(table_name, options, overrides, caller) do
     table_name = Macro.expand(table_name, caller)
     options = literal_keyword!(options, caller, "table options")
 
@@ -119,12 +124,67 @@ defmodule PgToEcto.Generator do
       name: table_name,
       module: module,
       file: file,
-      options: options
+      options: options,
+      overrides: overrides
     }
 
     quote do
       @pg_to_ecto_tables unquote(Macro.escape(table))
     end
+  end
+
+  defp parse_overrides(block, caller) do
+    expressions =
+      case block do
+        {:__block__, _, expressions} -> expressions
+        expression -> [expression]
+      end
+
+    Enum.map(expressions, fn
+      {:skip_assocs, _, [associations]} ->
+        associations = Macro.expand(associations, caller)
+
+        if is_list(associations) and Enum.all?(associations, &is_atom/1) do
+          {:skip_assocs, associations}
+        else
+          raise_compile_error(caller, "skip_assocs must be a literal list of association names")
+        end
+
+      {kind, _, [name, type]} when kind in [:field, :belongs_to, :has_one, :has_many] ->
+        parse_override(kind, name, type, [], caller)
+
+      {kind, _, [name, type, options]} when kind in [:field, :belongs_to, :has_one, :has_many] ->
+        parse_override(
+          kind,
+          name,
+          type,
+          literal_keyword!(options, caller, "#{kind} options"),
+          caller
+        )
+
+      expression ->
+        raise_compile_error(
+          caller,
+          "unsupported table override #{Macro.to_string(expression)}"
+        )
+    end)
+  end
+
+  defp parse_override(kind, name, type, options, caller) do
+    name = Macro.expand(name, caller)
+    type = Macro.expand(type, caller)
+
+    unless is_atom(name) and not is_nil(name) do
+      raise_compile_error(caller, "#{kind} names must be literal atoms")
+    end
+
+    if kind == :field and Keyword.has_key?(options, :source) and
+         not is_atom(Keyword.get(options, :source)) and
+         not is_binary(Keyword.get(options, :source)) do
+      raise_compile_error(caller, "field source must be an atom or string")
+    end
+
+    %{kind: kind, name: name, type: type, options: options}
   end
 
   defp literal_keyword!(value, caller, description) do
