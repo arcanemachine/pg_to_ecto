@@ -406,7 +406,7 @@ defmodule PgToEcto.Baseline do
     with {:ok, regions} <- Managed.find_regions(source, [@region_name]),
          :ok <- ensure_one_region(regions),
          {:ok, current_key} <- Managed.key_for_source(module, source, [@region_name]),
-         :ok <- Managed.validate_key(source, current_key),
+         :ok <- validate_embedded_key(source, current_key),
          {:ok, patched} <- Managed.patch_regions(source, %{@region_name => region}),
          {:ok, key} <- Managed.key_for_source(module, patched, [@region_name]),
          {:ok, updated} <- Managed.update_key(patched, key),
@@ -448,6 +448,14 @@ defmodule PgToEcto.Baseline do
              "The existing baseline migration could not be updated safely (#{inspect(reason)})."
            )
          ]}
+    end
+  end
+
+  defp validate_embedded_key(source, current_key) do
+    case Managed.extract_key(source) do
+      {:ok, ^current_key} -> :ok
+      {:ok, _actual} -> {:error, :mismatched_key}
+      :missing -> {:error, :missing_key}
     end
   end
 

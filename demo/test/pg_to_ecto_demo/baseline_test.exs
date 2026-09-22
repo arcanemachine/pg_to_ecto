@@ -41,6 +41,9 @@ defmodule PgToEctoDemo.BaselineTest do
     assert {:ok, target_model} =
              PgToEcto.Introspection.introspect(PgToEctoDemo.TargetRepo, profile.tables)
 
+    assert {:ok, schema_rendered} = PgToEcto.SchemaRenderer.render(profile, source_model)
+    Enum.each(schema_rendered.files, fn file -> Code.compile_string(file.source) end)
+
     %{source_model: source_model, target_model: target_model}
   end
 
@@ -49,6 +52,54 @@ defmodule PgToEctoDemo.BaselineTest do
     target_model: target
   } do
     assert normalize_model(source) == normalize_model(target)
+  end
+
+  test "generated schemas compile and expose expected fields and associations" do
+    assert apply(PgToEctoDemo.Customer, :__schema__, [:fields]) == [
+             :id,
+             :email,
+             :name,
+             :active,
+             :credit_limit,
+             :audit_event_id
+           ]
+
+    assert apply(PgToEctoDemo.Order, :__schema__, [:associations]) == [
+             :customer,
+             :delete_nilify_customer,
+             :delete_restrict_customer,
+             :update_nilify_customer
+           ]
+
+    assert apply(PgToEctoDemo.Invoice, :__schema__, [:associations]) == [:customer]
+    assert apply(PgToEctoDemo.Invoice, :__schema__, [:prefix]) == "sales"
+  end
+
+  test "generated schemas insert, load, and preload associations" do
+    email = unique_value("schema")
+
+    assert {:ok, customer} =
+             PgToEctoDemo.TargetRepo.insert(
+               struct(PgToEctoDemo.Customer, email: email, name: "Schema test")
+             )
+
+    assert is_integer(customer.id)
+
+    assert {:ok, order} =
+             PgToEctoDemo.TargetRepo.insert(
+               struct(PgToEctoDemo.Order,
+                 customer_id: customer.id,
+                 external_ref: unique_value("schema-order")
+               )
+             )
+
+    loaded = PgToEctoDemo.TargetRepo.get!(PgToEctoDemo.Order, order.id)
+    loaded = PgToEctoDemo.TargetRepo.preload(loaded, :customer)
+
+    assert loaded.customer.id == customer.id
+    assert loaded.customer.email == email
+
+    assert {:ok, _result} = PgToEctoDemo.TargetRepo.delete(customer)
   end
 
   test "database defaults are applied independently of catalog comparison" do

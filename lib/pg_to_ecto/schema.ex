@@ -14,4 +14,9 @@ defmodule PgToEcto.Schema do
   defmacro generated_settings(do: block), do: block
 
   defmacro generated_fields(do: block), do: block
+
+  @doc false
+  def render(profile, model, existing_sources \\ %{}) do
+    PgToEcto.SchemaRenderer.render(profile, model, existing_sources)
+  end
 end
