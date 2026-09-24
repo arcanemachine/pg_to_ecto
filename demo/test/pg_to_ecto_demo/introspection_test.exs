@@ -1,10 +1,18 @@
 defmodule PgToEctoDemo.IntrospectionTest do
   use ExUnit.Case, async: false
 
+  import ExUnit.CaptureLog
+
   alias PgToEctoDemo.Database
 
   setup_all do
-    :ok = Database.reset!()
+    logs =
+      capture_log(fn ->
+        :ok = Database.reset!()
+      end)
+
+    refute logs =~ "[error]"
+
     {:ok, source_repo} = PgToEctoDemo.SourceRepo.start_link()
     Process.unlink(source_repo)
 

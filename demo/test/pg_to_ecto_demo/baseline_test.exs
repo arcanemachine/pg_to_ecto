@@ -2,11 +2,18 @@ defmodule PgToEctoDemo.BaselineTest do
   use ExUnit.Case, async: false
 
   import ExUnit.CaptureIO
+  import ExUnit.CaptureLog
 
   alias PgToEctoDemo.Database
 
   setup_all do
-    :ok = Database.reset!()
+    reset_logs =
+      capture_log(fn ->
+        :ok = Database.reset!()
+      end)
+
+    refute reset_logs =~ "[error]"
+
     {:ok, source_repo} = PgToEctoDemo.SourceRepo.start_link()
     Process.unlink(source_repo)
 
@@ -33,10 +40,15 @@ defmodule PgToEctoDemo.BaselineTest do
     assert {:ok, result} = PgToEcto.generate(PgToEctoDemo.Profile)
     assert Enum.any?(result.diagnostics, &(&1.code == :unselected_referenced_table))
 
-    assert {:ok, [1], []} =
-             Ecto.Migrator.with_repo(PgToEctoDemo.TargetRepo, fn repo ->
-               Ecto.Migrator.run(repo, [migration_path], :up, all: true)
-             end)
+    migration_logs =
+      capture_log(fn ->
+        assert {:ok, [1], []} =
+                 Ecto.Migrator.with_repo(PgToEctoDemo.TargetRepo, fn repo ->
+                   Ecto.Migrator.run(repo, [migration_path], :up, all: true)
+                 end)
+      end)
+
+    refute migration_logs =~ "[error]"
 
     {:ok, target_repo} = PgToEctoDemo.TargetRepo.start_link()
     Process.unlink(target_repo)
@@ -74,9 +86,17 @@ defmodule PgToEctoDemo.BaselineTest do
     on_exit(fn -> File.write!(path, original) end)
 
     output =
-      capture_io(fn ->
-        assert :ok = Mix.Tasks.PgToEcto.Generate.run(["--force"])
+      with_ansi(fn ->
+        capture_io(fn ->
+          assert :ok = Mix.Tasks.PgToEcto.Generate.run(["--force"])
+        end)
       end)
+
+    assert output =~ IO.ANSI.yellow() <> "warning: "
+    assert output =~ IO.ANSI.yellow() <> "would update" <> IO.ANSI.reset()
+    assert output =~ IO.ANSI.yellow() <> "updated" <> IO.ANSI.reset()
+
+    output = strip_ansi(output)
 
     warning_position =
       :binary.match(output, "Force replaced the unmanaged schema file") |> elem(0)
@@ -114,30 +134,35 @@ defmodule PgToEctoDemo.BaselineTest do
   end
 
   test "generated schemas insert, load, and preload associations" do
-    email = unique_value("schema")
+    logs =
+      capture_log(fn ->
+        email = unique_value("schema")
 
-    assert {:ok, customer} =
-             PgToEctoDemo.TargetRepo.insert(
-               struct(PgToEctoDemo.Customer, email: email, name: "Schema test")
-             )
+        assert {:ok, customer} =
+                 PgToEctoDemo.TargetRepo.insert(
+                   struct(PgToEctoDemo.Customer, email: email, name: "Schema test")
+                 )
 
-    assert is_integer(customer.id)
+        assert is_integer(customer.id)
 
-    assert {:ok, order} =
-             PgToEctoDemo.TargetRepo.insert(
-               struct(PgToEctoDemo.Order,
-                 customer_id: customer.id,
-                 external_ref: unique_value("schema-order")
-               )
-             )
+        assert {:ok, order} =
+                 PgToEctoDemo.TargetRepo.insert(
+                   struct(PgToEctoDemo.Order,
+                     customer_id: customer.id,
+                     external_ref: unique_value("schema-order")
+                   )
+                 )
 
-    loaded = PgToEctoDemo.TargetRepo.get!(PgToEctoDemo.Order, order.id)
-    loaded = PgToEctoDemo.TargetRepo.preload(loaded, :customer)
+        loaded = PgToEctoDemo.TargetRepo.get!(PgToEctoDemo.Order, order.id)
+        loaded = PgToEctoDemo.TargetRepo.preload(loaded, :customer)
 
-    assert loaded.customer.id == customer.id
-    assert loaded.customer.email == email
+        assert loaded.customer.id == customer.id
+        assert loaded.customer.email == email
 
-    assert {:ok, _result} = PgToEctoDemo.TargetRepo.delete(customer)
+        assert {:ok, _result} = PgToEctoDemo.TargetRepo.delete(customer)
+      end)
+
+    refute logs =~ "[error]"
   end
 
   test "database defaults are applied independently of catalog comparison" do
@@ -282,6 +307,23 @@ defmodule PgToEctoDemo.BaselineTest do
                )
     end
   end
+
+  defp with_ansi(fun) do
+    previous = Application.get_env(:elixir, :ansi_enabled)
+    Application.put_env(:elixir, :ansi_enabled, true)
+
+    try do
+      fun.()
+    after
+      if is_nil(previous) do
+        Application.delete_env(:elixir, :ansi_enabled)
+      else
+        Application.put_env(:elixir, :ansi_enabled, previous)
+      end
+    end
+  end
+
+  defp strip_ansi(output), do: Regex.replace(~r/\e\[[\d;]*m/, output, "")
 
   defp snapshot_outputs(paths) do
     Enum.map(paths, fn path ->

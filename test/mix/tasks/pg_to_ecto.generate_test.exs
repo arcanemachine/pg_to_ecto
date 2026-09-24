@@ -39,6 +39,7 @@ defmodule Mix.Tasks.PgToEcto.GenerateTest do
 
   test "shows task help without starting the application" do
     output = capture_io(fn -> assert :ok = Generate.run(["--help"]) end)
+    output = strip_ansi(output)
 
     assert output =~ "mix pg_to_ecto.generate [PROFILE]"
     assert output =~ "--dry-run"
@@ -52,6 +53,8 @@ defmodule Mix.Tasks.PgToEcto.GenerateTest do
           Generate.run([])
         end
       end)
+
+    output = strip_ansi(output)
 
     assert output =~ "No PgToEcto generator profile is configured"
     assert output =~ "config :pg_to_ecto, generator: MyApp.PgToEcto"
@@ -73,14 +76,21 @@ defmodule Mix.Tasks.PgToEcto.GenerateTest do
     }
 
     output =
-      capture_io(fn ->
-        assert {:error, %PgToEcto.Result{diagnostics: [^error]}} =
-                 Generate.force_generation(
-                   fn -> {:ok, %PgToEcto.Result{files: [change], diagnostics: [warning]}} end,
-                   fn -> {:error, %PgToEcto.Result{files: [change], diagnostics: [error]}} end,
-                   dry_run: true
-                 )
+      with_ansi(fn ->
+        capture_io(fn ->
+          assert {:error, %PgToEcto.Result{diagnostics: [^error]}} =
+                   Generate.force_generation(
+                     fn -> {:ok, %PgToEcto.Result{files: [change], diagnostics: [warning]}} end,
+                     fn -> {:error, %PgToEcto.Result{files: [change], diagnostics: [error]}} end,
+                     dry_run: true
+                   )
+        end)
       end)
+
+    assert output =~ IO.ANSI.yellow() <> "warning: "
+    assert output =~ IO.ANSI.yellow() <> "would update" <> IO.ANSI.reset()
+
+    output = strip_ansi(output)
 
     assert output =~ "would update lib/widget.ex"
     refute output =~ "updated lib/widget.ex"
@@ -99,22 +109,25 @@ defmodule Mix.Tasks.PgToEcto.GenerateTest do
 
   test "reports when no files require changes" do
     output =
-      capture_io(fn ->
-        assert {:ok, %PgToEcto.Result{}} =
-                 Generate.force_generation(
-                   fn ->
-                     {:ok,
-                      %PgToEcto.Result{
-                        files: [%PgToEcto.FileChange{path: "lib/widget.ex", action: :unchanged}],
-                        diagnostics: []
-                      }}
-                   end,
-                   fn -> {:ok, %PgToEcto.Result{files: [], diagnostics: []}} end,
-                   dry_run: true
-                 )
+      with_ansi(fn ->
+        capture_io(fn ->
+          assert {:ok, %PgToEcto.Result{}} =
+                   Generate.force_generation(
+                     fn ->
+                       {:ok,
+                        %PgToEcto.Result{
+                          files: [%PgToEcto.FileChange{path: "lib/widget.ex", action: :unchanged}],
+                          diagnostics: []
+                        }}
+                     end,
+                     fn -> {:ok, %PgToEcto.Result{files: [], diagnostics: []}} end,
+                     dry_run: true
+                   )
+        end)
       end)
 
-    assert output == "No changes required.\n"
+    assert output =~ IO.ANSI.green() <> "No changes required." <> IO.ANSI.reset()
+    assert strip_ansi(output) == "No changes required.\n"
   end
 
   test "prints safe context only in verbose mode" do
@@ -135,10 +148,34 @@ defmodule Mix.Tasks.PgToEcto.GenerateTest do
   end
 
   test "rejects an invalid profile module before generation" do
-    assert_raise Mix.Error, ~r/could not load the generator profile/, fn ->
-      capture_io(fn -> Generate.run(["not-a-module"]) end)
+    output =
+      capture_io(:stderr, fn ->
+        capture_io(fn ->
+          assert_raise Mix.Error, ~r/could not load the generator profile/, fn ->
+            Generate.run(["not-a-module"])
+          end
+        end)
+      end)
+
+    assert output =~ "error: Profile module \"not-a-module\""
+  end
+
+  defp with_ansi(fun) do
+    previous = Application.get_env(:elixir, :ansi_enabled)
+    Application.put_env(:elixir, :ansi_enabled, true)
+
+    try do
+      fun.()
+    after
+      if is_nil(previous) do
+        Application.delete_env(:elixir, :ansi_enabled)
+      else
+        Application.put_env(:elixir, :ansi_enabled, previous)
+      end
     end
   end
+
+  defp strip_ansi(output), do: Regex.replace(~r/\e\[[\d;]*m/, output, "")
 
   defp capture_generation_error(arguments) do
     parent = self()
@@ -156,7 +193,7 @@ defmodule Mix.Tasks.PgToEcto.GenerateTest do
       end)
 
     receive do
-      {:captured_stdout, stdout} -> stdout <> stderr
+      {:captured_stdout, stdout} -> strip_ansi(stdout <> stderr)
     end
   end
 end
