@@ -90,7 +90,7 @@ Workers:
 - do not contact the user about the task unless the user initiates or explicitly reroutes communication;
 - do not commit unless the packet grants commit authority.
 
-Research subagents do not own implementation tasks.
+Subagents are for bounded information retrieval only. Never use `subagent_spawn` for implementation, corrections, review ownership, coordination, dispatch, or any other task-owning work. A subagent type named `worker` is still a disposable information-retrieval subagent; it is not a project Worker session. Implementation tasks go only to a fresh eligible Pi Worker session through the inter-agent mechanism.
 
 ## User-facing acceptance
 

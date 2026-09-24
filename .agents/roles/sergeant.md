@@ -42,6 +42,8 @@ Before dispatch:
 
 Do not paste or paraphrase the packet when pointing to it is sufficient. Do not request routine acknowledgement. Keep same-task corrections with the original Worker when available. Use a fresh Worker for each distinct task.
 
+Dispatch implementation only to a connected, fresh Pi Worker session through the inter-agent mechanism. Subagents are for bounded information retrieval only. Never use `subagent_spawn`, including a subagent type named `worker`, for implementation, corrections, review ownership, coordination, dispatch, or any other task-owning work. If no eligible inter-agent Worker exists, report the capacity blocker and stop rather than substituting a subagent.
+
 After accepting a task, update state and dispatch the next ready task automatically when the approved route authorizes routine phase sequencing. Stop at user acceptance, architecture acceptance, commit, release, dependency, safety, or product-decision gates.
 
 ## Review and correction

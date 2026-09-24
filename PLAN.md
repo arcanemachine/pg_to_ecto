@@ -10,7 +10,7 @@ The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed.
 
 The untracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_demo/order.ex`, and `demo/lib/pg_to_ecto_demo/invoice.ex` are intentional outputs from the user’s accepted UAT. Treat them as Phase 8 canonical review candidates, not test leakage. Do not delete or commit them until Phase 8 review and the applicable commit gate determine their disposition.
 
-Phase 8 (Wave 1 and `0.1.0` Readiness) is active under Sergeant coordination. Task 01 (readiness evidence) is in progress with one fresh Worker.
+Phase 8 (Wave 1 and `0.1.0` Readiness) is active with Task 01 complete and Task 02 user acceptance approved. The readiness candidate and ownership transition are integrated and ready for Architect acceptance.
 
 ## Current owner
 
@@ -18,11 +18,11 @@ Sergeant, for Phase 8 coordination, review, acceptance handling, and integration
 
 ## Next intended owner
 
-The fresh Worker owns Task 01 readiness evidence. Sergeant remains responsible for review, user acceptance, integration, and routing the subsequent gates.
+Architect is the current owner for bounded Phase 8 architecture acceptance. Sergeant is next owner for Task 04 closeout after Architect acceptance.
 
 ## Next intended action
 
-The assigned Worker completes Task 01 from `plans/08-wave-1-release-readiness/01-readiness-evidence.md` and reports exact evidence to Sergeant. Sergeant reviews the evidence, prepares the user-acceptance surface, and stops at the required acceptance and architecture gates.
+Architect picks up `plans/08-wave-1-release-readiness/03-architecture-acceptance.md` for bounded acceptance. Do not tag, publish, release, or begin Wave 2.
 
 ## Accepted verification evidence
 

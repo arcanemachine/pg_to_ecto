@@ -1,7 +1,7 @@
 ---
 kind: sergeant-review-task
 role: sergeant
-status: pending
+status: complete
 ---
 
 # Task 02 — Review, verification, and user acceptance

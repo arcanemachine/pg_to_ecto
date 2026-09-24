@@ -1,7 +1,7 @@
 ---
 kind: architecture-acceptance-task
 role: architect
-status: pending
+status: needs-review
 ---
 
 # Task 03 — Architecture acceptance

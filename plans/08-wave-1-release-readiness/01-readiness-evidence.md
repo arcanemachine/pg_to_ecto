@@ -1,7 +1,7 @@
 ---
 kind: worker-task
 role: worker
-status: in-progress
+status: complete
 ---
 
 # Task 01 — Build the Wave 1 readiness candidate and evidence
