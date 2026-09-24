@@ -7,7 +7,7 @@ title: Wave 1 and 0.1.0 Readiness
 
 Planning status: Complete and execution-ready  
 Execution owner: Sergeant  
-Execution status: Blocked on accepted-tree commit authority and explicit Phase 8 activation  
+Execution status: Active — Task 01 in progress
 Route: Sergeant-coordinated phase with one fresh Worker for readiness evidence
 
 ## Purpose
@@ -161,7 +161,7 @@ Architecture acceptance does not publish or tag the package.
 
 | Task | Role | Status | Packet | Next |
 | --- | --- | --- | --- | --- |
-| 01 | Worker | pending | `01-readiness-evidence.md` | Sergeant reviews evidence and corrections |
+| 01 | Worker | in-progress | `01-readiness-evidence.md` | Sergeant reviews evidence and corrections |
 | 02 | Sergeant | pending | `02-review-and-user-acceptance.md` | Architect acceptance if user approves |
 | 03 | Architect | pending | `03-architecture-acceptance.md` | Sergeant closeout if accepted |
 | 04 | Sergeant | pending | `04-closeout.md` | Phase closed; release actions remain separately gated |
