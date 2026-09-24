@@ -11,7 +11,6 @@ defmodule PgToEctoDemo.Database do
   @default_port 5432
   @default_user "postgres"
   @default_database "pg_to_ecto_demo_test"
-  @default_password "your_postgres_password"
   @safe_database_pattern ~r/\Apg_to_ecto_demo[a-z0-9_-]*\z/
   @maximum_database_name_length 63
 
@@ -223,7 +222,7 @@ defmodule PgToEctoDemo.Database do
   defp required_password do
     case System.get_env("POSTGRES_PASSWORD") do
       password when is_binary(password) and password != "" -> {:ok, password}
-      _ -> {:ok, @default_password}
+      _ -> {:error, "POSTGRES_PASSWORD must be set to a non-empty value."}
     end
   end
 

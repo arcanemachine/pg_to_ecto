@@ -11,16 +11,17 @@ defmodule PgToEcto.Baseline do
         }
 
   @doc false
-  @spec render(map(), map(), String.t() | nil) ::
+  @spec render(map(), map(), String.t() | nil, keyword()) ::
           {:ok, render_result()} | {:error, [Diagnostic.t()]}
-  def render(profile, model, existing_source \\ nil) do
+  def render(profile, model, existing_source \\ nil, options \\ []) when is_list(options) do
     module = migration_module(profile.repo)
     {diagnostics, tables} = diagnostics_and_tables(model)
 
     with {:ok, ordered_tables} <- order_tables(tables, diagnostics),
          false <- has_errors?(diagnostics),
-         {:ok, source, key} <- render_source(profile, module, ordered_tables, existing_source) do
-      {:ok, %{source: source, diagnostics: diagnostics, key: key}}
+         {:ok, source, key, source_diagnostics} <-
+           render_source(profile, module, ordered_tables, existing_source, options) do
+      {:ok, %{source: source, diagnostics: diagnostics ++ source_diagnostics, key: key}}
     else
       true -> {:error, diagnostics}
       {:error, diagnostics} -> {:error, diagnostics}
@@ -303,20 +304,27 @@ defmodule PgToEcto.Baseline do
     end
   end
 
-  defp render_source(profile, module, tables, existing_source) do
+  defp render_source(profile, module, tables, existing_source, options) do
     with {:ok, region} <- format_region(render_region(tables)) do
-      render_formatted_source(profile, module, region, existing_source)
+      render_formatted_source(
+        profile,
+        module,
+        region,
+        existing_source,
+        options,
+        Map.get(profile, :migration_file, "baseline migration")
+      )
     end
   end
 
-  defp render_formatted_source(profile, module, region, existing_source) do
+  defp render_formatted_source(profile, module, region, existing_source, options, path) do
     case existing_source do
       nil ->
         source =
           new_source(
             module,
             region,
-            Keyword.get(profile.options, :show_generated_key_comment, true)
+            Keyword.get(Map.get(profile, :options, []), :show_generated_key_comment, true)
           )
 
         finalize_source(module, source)
@@ -326,7 +334,9 @@ defmodule PgToEcto.Baseline do
           module,
           source,
           region,
-          Keyword.get(profile.options, :show_generated_key_comment, true)
+          Keyword.get(Map.get(profile, :options, []), :show_generated_key_comment, true),
+          options,
+          path
         )
     end
   end
@@ -402,52 +412,87 @@ defmodule PgToEcto.Baseline do
     end)
   end
 
-  defp render_existing_source(module, source, region, show_comment?) do
-    with {:ok, regions} <- Managed.find_regions(source, [@region_name]),
-         :ok <- ensure_one_region(regions),
-         {:ok, current_key} <- Managed.key_for_source(module, source, [@region_name]),
-         :ok <- validate_embedded_key(source, current_key),
-         {:ok, patched} <- Managed.patch_regions(source, %{@region_name => region}),
-         {:ok, key} <- Managed.key_for_source(module, patched, [@region_name]),
-         {:ok, updated} <- Managed.update_key(patched, key),
-         {:ok, updated} <- update_key_comment(updated, show_comment?) do
-      {:ok, updated, key}
-    else
-      {:error, {:parse_error, message}} ->
-        {:error,
-         [
-           error(
-             :invalid_managed_migration,
-             "Could not parse the existing baseline migration: #{message}."
-           )
-         ]}
+  defp render_existing_source(module, source, region, show_comment?, options, path) do
+    force? = Keyword.get(options, :force, false)
 
-      {:error, :missing_key} ->
-        {:error,
-         [
-           error(
-             :managed_key_missing,
-             "The existing baseline migration has no PgToEcto managed key."
-           )
-         ]}
+    case Managed.find_regions(source, [@region_name]) do
+      {:ok, regions} ->
+        case ensure_one_region(regions) do
+          :ok ->
+            update_managed_source(module, source, region, show_comment?, force?, path)
 
-      {:error, :mismatched_key} ->
-        {:error,
-         [
-           error(
-             :managed_key_mismatch,
-             "The existing baseline migration has been changed outside PgToEcto. Restore the managed key or review the file before regenerating."
-           )
-         ]}
+          {:error, reason} when force? ->
+            force_replace_source(module, region, show_comment?, reason, path)
+
+          {:error, reason} ->
+            {:error, [migration_source_error(reason)]}
+        end
+
+      {:error, reason} when force? ->
+        force_replace_source(module, region, show_comment?, reason, path)
 
       {:error, reason} ->
-        {:error,
+        {:error, [migration_source_error(reason)]}
+    end
+  end
+
+  defp update_managed_source(module, source, region, show_comment?, force?, path) do
+    key_result = managed_key_result(module, source)
+
+    case {key_result, force?} do
+      {{:error, diagnostics}, false} ->
+        {:error, diagnostics}
+
+      _ ->
+        with {:ok, patched} <- Managed.patch_regions(source, %{@region_name => region}),
+             {:ok, key} <- Managed.key_for_source(module, patched, [@region_name]),
+             {:ok, updated} <- Managed.update_key(patched, key),
+             {:ok, updated} <- update_key_comment(updated, show_comment?),
+             {:ok, _ast} <- parse_source(updated) do
+          diagnostics =
+            if key_result == :ok do
+              []
+            else
+              [
+                warning(
+                  :force_reset_managed_file,
+                  "Force reset the managed migration region in #{path}."
+                )
+              ]
+            end
+
+          {:ok, updated, key, diagnostics}
+        else
+          {:error, reason} -> {:error, [migration_source_error(reason)]}
+        end
+    end
+  end
+
+  defp force_replace_source(module, region, show_comment?, _reason, path) do
+    case finalize_source(module, new_source(module, region, show_comment?)) do
+      {:ok, source, key, diagnostics} ->
+        {:ok, source, key,
          [
-           error(
-             :invalid_managed_migration,
-             "The existing baseline migration could not be updated safely (#{inspect(reason)})."
+           warning(
+             :force_replaced_unowned_file,
+             "Force replaced the unmanaged baseline migration #{path}."
            )
+           | diagnostics
          ]}
+
+      {:error, diagnostics} ->
+        {:error, diagnostics}
+    end
+  end
+
+  defp managed_key_result(module, source) do
+    with {:ok, current_key} <- Managed.key_for_source(module, source, [@region_name]) do
+      case validate_embedded_key(source, current_key) do
+        :ok -> :ok
+        {:error, reason} -> {:error, [migration_source_error(reason)]}
+      end
+    else
+      {:error, reason} -> {:error, [migration_source_error(reason)]}
     end
   end
 
@@ -456,43 +501,91 @@ defmodule PgToEcto.Baseline do
       {:ok, ^current_key} -> :ok
       {:ok, _actual} -> {:error, :mismatched_key}
       :missing -> {:error, :missing_key}
+      {:error, :invalid_key} -> {:error, :invalid_key}
     end
   end
 
   defp ensure_one_region(regions) do
-    if Enum.count(regions, &(&1 |> elem(0) == @region_name)) == 1 do
-      :ok
-    else
-      {:error, :region_count_mismatch}
+    case Enum.count(regions, &(&1 |> elem(0) == @region_name)) do
+      1 -> :ok
+      0 -> {:error, :unowned_file}
+      _count -> {:error, :region_count_mismatch}
     end
   end
 
-  defp update_key_comment(source, true) do
-    if String.contains?(source, "# Generated by PgToEcto. Do not modify this key manually.") do
-      {:ok, source}
-    else
-      case Regex.run(~r/(^\s*@pg_to_ecto_key\s+"pgte1:[^"]+"\s*$)/m, source,
-             capture: :all_but_first
-           ) do
-        [key_line] ->
-          {:ok,
-           String.replace(
-             source,
-             key_line,
-             "# Generated by PgToEcto. Do not modify this key manually.\n" <> key_line,
-             global: false
-           )}
+  defp update_key_comment(source, show_comment?) do
+    if show_comment? do
+      if String.contains?(source, "# Generated by PgToEcto. Do not modify this key manually.") do
+        {:ok, source}
+      else
+        case Regex.run(~r/(^[ \t]*@pg_to_ecto_key[ \t]+"pgte1:[^"]+"[ \t]*$)/m, source,
+               capture: :all_but_first
+             ) do
+          [key_line] ->
+            indent = Regex.run(~r/^[ \t]*/, key_line) |> List.first()
+            comment = indent <> "# Generated by PgToEcto. Do not modify this key manually."
 
-        _ ->
-          {:error, :missing_key_anchor}
+            {:ok, String.replace(source, key_line, comment <> "\n" <> key_line, global: false)}
+
+          _ ->
+            {:error, :missing_key_anchor}
+        end
       end
+    else
+      remove_key_comment(source)
     end
   end
 
-  defp update_key_comment(source, false) do
+  defp migration_source_error(:missing_key),
+    do:
+      error(:managed_key_missing, "The existing baseline migration has no PgToEcto managed key.")
+
+  defp migration_source_error(:invalid_key),
+    do:
+      error(
+        :managed_key_invalid,
+        "The existing baseline migration has an invalid PgToEcto managed key."
+      )
+
+  defp migration_source_error(:mismatched_key),
+    do:
+      error(
+        :managed_key_mismatch,
+        "The existing baseline migration has been changed outside PgToEcto. Restore the managed key or review the file before regenerating."
+      )
+
+  defp migration_source_error(:unowned_file),
+    do:
+      error(
+        :unowned_file,
+        "The existing baseline migration is not managed by PgToEcto. Use force to replace it."
+      )
+
+  defp migration_source_error(:region_count_mismatch),
+    do:
+      error(
+        :invalid_managed_migration,
+        "The existing baseline migration must contain exactly one generated_change region."
+      )
+
+  defp migration_source_error({:parse_error, message}),
+    do:
+      error(
+        :invalid_managed_migration,
+        "Could not parse the existing baseline migration: #{message}."
+      )
+
+  defp migration_source_error(reason),
+    do:
+      error(
+        :invalid_managed_migration,
+        "The existing baseline migration could not be updated safely (#{inspect(reason)})."
+      )
+
+  defp remove_key_comment(source) do
     {:ok,
      Regex.replace(
-       ~r/^\s*# Generated by PgToEcto\. Do not modify this key manually\.\n/m,
+       ~r/^[ \t]*# Generated by PgToEcto\. Do not modify this key manually\.[ \t]*\n/m,
        source,
        ""
      )}
@@ -540,7 +633,7 @@ defmodule PgToEcto.Baseline do
     with {:ok, key} <- Managed.key_for_source(module, formatted, [@region_name]),
          {:ok, updated} <- Managed.update_key(formatted, key),
          {:ok, updated} <- parse_source(updated) do
-      {:ok, updated, key}
+      {:ok, updated, key, []}
     else
       {:error, reason} ->
         {:error,

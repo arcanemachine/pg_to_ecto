@@ -12,7 +12,7 @@ Set these environment variables before running database commands:
 POSTGRES_HOST=localhost       # optional, defaults to localhost
 POSTGRES_PORT=5432            # optional, defaults to 5432
 POSTGRES_USER=postgres        # optional, defaults to postgres
-POSTGRES_PASSWORD=...         # optional; defaults to your_postgres_password
+POSTGRES_PASSWORD=...         # required; no default is used
 POSTGRES_DB=pg_to_ecto_demo_test  # optional default
 ```
 
@@ -21,9 +21,8 @@ always `${POSTGRES_DB}_target`. Lifecycle commands refuse names that do not
 start with `pg_to_ecto_demo` and contain only lowercase letters, digits, `_`,
 or `-`. The commands never drop or create a database outside that family.
 
-If `POSTGRES_PASSWORD` is unset or empty, the demo uses the placeholder
-`your_postgres_password`. Set the variable to override it for a local server.
-`.env.example` documents the non-secret variable names. The project does not
+`POSTGRES_PASSWORD` must be set to a non-empty value before database commands
+run. `.env.example` documents the required variable names. The project does not
 load `.env` files automatically.
 
 ## Database lifecycle
@@ -54,3 +53,25 @@ The source fixture contains selected `customers`, `orders`, and
 It also covers common scalar types, nullability, safe literal defaults,
 foreign keys with delete actions, ordinary and unique indexes, and a
 non-`public` namespace.
+
+## Generation
+
+After `mix demo.reset`, run the generator against the disposable source Repo:
+
+```bash
+mix pg_to_ecto.generate --dry-run
+mix pg_to_ecto.generate
+```
+
+The dry run reports schema and migration changes without writing. Normal
+execution updates the managed schema regions and the baseline migration. Use
+`--force` only to replace an unmanaged output file or reset a changed managed
+region after reviewing its warning. User code outside generated regions is
+preserved. `mix test` exercises source introspection, baseline application to
+the clean target database, generated schema compilation, and representative
+Ecto/PostgreSQL behavior.
+
+The generator performs read-only catalog introspection against the source Repo;
+it does not query application rows or run DDL there. The lifecycle aliases above
+are the only demo commands that drop databases, and their disposable-name
+checks must pass before any destructive operation.

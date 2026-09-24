@@ -9,6 +9,9 @@ defmodule PgToEcto.SchemaRendererTest do
   defmodule Order do
   end
 
+  defmodule Tag do
+  end
+
   describe "render/3" do
     test "renders fields, defaults, selected associations, and reverse cardinality" do
       assert {:ok, rendered} = SchemaRenderer.render(%{options: []}, model())
@@ -73,6 +76,136 @@ defmodule PgToEcto.SchemaRendererTest do
       order_source = Enum.find(rendered.files, &(&1.module == Order)).source
       assert order_source =~ "field :legacy_status, :string, source: :\"legacy-status\""
       refute order_source =~ "belongs_to :customer"
+    end
+
+    test "preserves user schema source when force resets managed regions" do
+      customer = hd(model().tables)
+      assert {:ok, rendered} = SchemaRenderer.render(%{options: []}, %{tables: [customer]})
+      file = hd(rendered.files)
+
+      user_source =
+        file.source
+        |> String.replace_suffix(
+          "  end\nend\n",
+          "    field :display_name, :string, virtual: true\n    many_to_many :tags, PgToEcto.SchemaRendererTest.Tag, join_through: \"tags\"\n  end\n\n  def changeset(record, attrs), do: {record, attrs}\nend\n"
+        )
+        |> String.replace("field :active, :boolean", "field :active, :string")
+
+      assert {:error, diagnostics} =
+               SchemaRenderer.render(%{options: []}, %{tables: [customer]}, %{
+                 file.path => user_source
+               })
+
+      assert Enum.any?(diagnostics, &(&1.code == :managed_key_mismatch))
+
+      assert {:ok, forced} =
+               SchemaRenderer.render(
+                 %{options: []},
+                 %{tables: [customer]},
+                 %{file.path => user_source},
+                 force: true
+               )
+
+      forced_source = hd(forced.files).source
+      assert forced_source =~ "field :display_name, :string, virtual: true"
+      assert forced_source =~ "many_to_many :tags"
+      assert forced_source =~ "def changeset(record, attrs)"
+      assert Enum.any?(forced.diagnostics, &(&1.code == :force_reset_managed_file))
+    end
+
+    test "adds a newly expected settings region without discarding user source" do
+      customer = hd(model().tables)
+      assert {:ok, rendered} = SchemaRenderer.render(%{options: []}, %{tables: [customer]})
+      file = hd(rendered.files)
+
+      user_source =
+        file.source
+        |> String.replace_suffix(
+          "  end\nend\n",
+          "    field :display_name, :string, virtual: true\n  end\n\n  def label(record), do: record.name\nend\n"
+        )
+
+      updated_customer = %{customer | identity: %{schema: "sales", table: "customers"}}
+
+      assert {:ok, forced} =
+               SchemaRenderer.render(
+                 %{options: []},
+                 %{tables: [updated_customer]},
+                 %{file.path => user_source},
+                 force: true
+               )
+
+      source = hd(forced.files).source
+      assert source =~ "generated_settings do"
+      assert source =~ "@schema_prefix \"sales\""
+      assert source =~ "field :display_name, :string, virtual: true"
+      assert source =~ "def label(record)"
+      refute Enum.any?(forced.diagnostics, &(&1.code == :force_replaced_unowned_file))
+    end
+
+    test "repairs duplicate generated regions without discarding user source" do
+      customer = hd(model().tables)
+      assert {:ok, rendered} = SchemaRenderer.render(%{options: []}, %{tables: [customer]})
+      file = hd(rendered.files)
+
+      user_source =
+        file.source
+        |> String.replace_suffix(
+          "  end\nend\n",
+          "    field :display_name, :string, virtual: true\n  end\n\n  def label(record), do: record.name\nend\n"
+        )
+
+      {:ok, [{:generated_fields, start, finish}]} =
+        PgToEcto.Managed.find_regions(user_source, [:generated_fields])
+
+      generated_region = binary_part(user_source, start, finish - start)
+
+      duplicated_source =
+        binary_part(user_source, 0, start) <>
+          generated_region <>
+          "\n\n" <>
+          generated_region <>
+          binary_part(user_source, finish, byte_size(user_source) - finish)
+
+      assert {:error, diagnostics} =
+               SchemaRenderer.render(%{options: []}, %{tables: [customer]}, %{
+                 file.path => duplicated_source
+               })
+
+      assert Enum.any?(diagnostics, &(&1.code == :invalid_managed_schema))
+
+      assert {:ok, forced} =
+               SchemaRenderer.render(
+                 %{options: []},
+                 %{tables: [customer]},
+                 %{file.path => duplicated_source},
+                 force: true
+               )
+
+      source = hd(forced.files).source
+      assert source =~ "field :display_name, :string, virtual: true"
+      assert source =~ "def label(record)"
+      assert source |> String.split("generated_fields do") |> length() == 2
+      assert Enum.any?(forced.diagnostics, &(&1.code == :force_reset_managed_file))
+    end
+
+    test "refuses an unowned file and replaces it only with force" do
+      customer = hd(model().tables)
+      path = customer.file
+      source = "defmodule PgToEcto.SchemaRendererTest.Customer do\n  use Ecto.Schema\nend\n"
+
+      assert {:error, diagnostics} =
+               SchemaRenderer.render(%{options: []}, %{tables: [customer]}, %{path => source})
+
+      assert Enum.any?(diagnostics, &(&1.code == :unowned_file))
+
+      assert {:ok, forced} =
+               SchemaRenderer.render(%{options: []}, %{tables: [customer]}, %{path => source},
+                 force: true
+               )
+
+      assert hd(forced.files).source =~ "@pg_to_ecto_key"
+      assert Enum.any?(forced.diagnostics, &(&1.code == :force_replaced_unowned_file))
     end
 
     test "refuses a direct user field collision and a changed managed region" do

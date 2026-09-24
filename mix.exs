@@ -38,7 +38,7 @@ defmodule PgToEcto.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/arcanemachine/pg_to_ecto"},
-      files: ["lib", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE"]
+      files: ["lib", ".formatter.exs", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE"]
     ]
   end
 end
