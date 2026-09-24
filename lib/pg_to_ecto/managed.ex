@@ -1,7 +1,10 @@
 defmodule PgToEcto.Managed do
   @moduledoc false
 
-  @key_pattern ~r/@pg_to_ecto_key\s+"(pgte1:[^"]+)"/
+  @key_pattern ~r/^[ \t]*@pg_to_ecto_key[ \t]+"([^"]*)"[ \t]*$/m
+  @key_attribute_pattern ~r/^[ \t]*@pg_to_ecto_key\b/m
+  @key_prefix "pgte1:"
+  @digest_bytes 32
 
   def key(module, regions) when is_atom(module) and is_map(regions) do
     normalized_regions =
@@ -15,8 +18,24 @@ defmodule PgToEcto.Managed do
       |> then(&:crypto.hash(:sha256, &1))
       |> Base.encode64(padding: false)
 
-    "pgte1:" <> payload
+    @key_prefix <> payload
   end
+
+  @doc false
+  def valid_key?(key) when is_binary(key) do
+    case key do
+      <<@key_prefix, payload::binary>> ->
+        case Base.decode64(payload, padding: false) do
+          {:ok, digest} -> byte_size(digest) == @digest_bytes
+          :error -> false
+        end
+
+      _ ->
+        false
+    end
+  end
+
+  def valid_key?(_key), do: false
 
   def normalize(value) when is_binary(value) do
     case Sourceror.parse_string(value) do
@@ -36,7 +55,8 @@ defmodule PgToEcto.Managed do
   def normalize(value), do: value
 
   def key_for_source(module, source, region_names) when is_atom(module) and is_binary(source) do
-    with {:ok, regions} <- find_regions(source, region_names) do
+    with {:ok, regions} <- find_regions(source, region_names),
+         :ok <- ensure_one_each(regions, region_names) do
       contents =
         Map.new(regions, fn {name, start, finish} ->
           {name, binary_part(source, start, finish - start)}
@@ -47,17 +67,33 @@ defmodule PgToEcto.Managed do
   end
 
   def extract_key(source) when is_binary(source) do
-    case Regex.run(@key_pattern, source, capture: :all_but_first) do
-      [key] -> {:ok, key}
-      nil -> :missing
+    matches = Regex.scan(@key_pattern, source, capture: :all_but_first)
+    attribute_count = length(Regex.scan(@key_attribute_pattern, source))
+
+    case {attribute_count, matches} do
+      {1, [[key]]} ->
+        if valid_key?(key), do: {:ok, key}, else: {:error, :invalid_key}
+
+      {0, []} ->
+        :missing
+
+      _ ->
+        {:error, :invalid_key}
     end
   end
 
   def validate_key(source, expected_key) when is_binary(source) do
-    case extract_key(source) do
-      {:ok, ^expected_key} -> :ok
-      {:ok, _actual} -> {:error, :mismatched_key}
-      :missing -> {:error, :missing_key}
+    cond do
+      not valid_key?(expected_key) ->
+        {:error, :invalid_key}
+
+      true ->
+        case extract_key(source) do
+          {:ok, ^expected_key} -> :ok
+          {:ok, _actual} -> {:error, :mismatched_key}
+          :missing -> {:error, :missing_key}
+          {:error, :invalid_key} -> {:error, :invalid_key}
+        end
     end
   end
 
@@ -116,23 +152,55 @@ defmodule PgToEcto.Managed do
   end
 
   def update_key(source, key) when is_binary(source) and is_binary(key) do
-    case Regex.run(@key_pattern, source) do
-      [full, old_key] ->
-        {:ok, String.replace(source, full, String.replace(full, old_key, key), global: false)}
+    if not valid_key?(key) do
+      {:error, :invalid_key}
+    else
+      update_key_source(source, key)
+    end
+  end
 
-      nil ->
-        case Regex.run(~r/(^\s*use\s+Ecto\.(?:Schema|Migration).*?$)/m, source,
-               capture: :all_but_first
-             ) do
-          [use_line] ->
-            {:ok,
-             String.replace(source, use_line, use_line <> "\n\n@pg_to_ecto_key \"#{key}\"",
-               global: false
-             )}
+  defp update_key_source(source, key) do
+    valid_matches = Regex.scan(@key_pattern, source)
+    attribute_count = length(Regex.scan(@key_attribute_pattern, source))
 
-          _ ->
-            {:error, :missing_key_anchor}
-        end
+    case {length(valid_matches), attribute_count} do
+      {1, 1} ->
+        {:ok,
+         Regex.replace(
+           @key_pattern,
+           source,
+           fn line ->
+             Regex.replace(~r/"[^"]*"/, line, "\"#{key}\"", global: false)
+           end,
+           global: false
+         )}
+
+      _ ->
+        source = remove_key_attributes(source)
+        insert_key_after_ecto_use(source, key)
+    end
+  end
+
+  defp remove_key_attributes(source) do
+    Regex.replace(~r/^[ \t]*@pg_to_ecto_key[^\n]*\n?/m, source, "")
+  end
+
+  defp insert_key_after_ecto_use(source, key) do
+    anchors =
+      Regex.scan(
+        ~r/^[ \t]*use\s+(?:PgToEcto\.(?:Schema|Migration)|Ecto\.(?:Schema|Migration)).*$/m,
+        source
+      )
+
+    case List.last(anchors) do
+      [use_line] ->
+        indent = Regex.run(~r/^[ \t]*/, use_line) |> List.first()
+        key_line = indent <> "@pg_to_ecto_key \"#{key}\""
+
+        {:ok, String.replace(source, use_line, use_line <> "\n\n" <> key_line, global: false)}
+
+      _ ->
+        {:error, :missing_key_anchor}
     end
   end
 

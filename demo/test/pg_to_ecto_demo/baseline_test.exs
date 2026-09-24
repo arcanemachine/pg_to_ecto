@@ -1,6 +1,8 @@
 defmodule PgToEctoDemo.BaselineTest do
   use ExUnit.Case, async: false
 
+  import ExUnit.CaptureIO
+
   alias PgToEctoDemo.Database
 
   setup_all do
@@ -13,6 +15,11 @@ defmodule PgToEctoDemo.BaselineTest do
     end)
 
     assert {:ok, profile, []} = PgToEcto.Profile.validate(PgToEctoDemo.Profile)
+
+    output_paths = Enum.map(profile.tables, & &1.file) ++ [profile.migration_file]
+    output_snapshots = snapshot_outputs(output_paths)
+
+    on_exit(fn -> restore_outputs(output_snapshots) end)
 
     assert {:ok, source_model} =
              PgToEcto.Introspection.introspect(PgToEctoDemo.SourceRepo, profile.tables)
@@ -42,9 +49,40 @@ defmodule PgToEctoDemo.BaselineTest do
              PgToEcto.Introspection.introspect(PgToEctoDemo.TargetRepo, profile.tables)
 
     assert {:ok, schema_rendered} = PgToEcto.SchemaRenderer.render(profile, source_model)
-    Enum.each(schema_rendered.files, fn file -> Code.compile_string(file.source) end)
+
+    Enum.each(schema_rendered.files, fn file ->
+      unless Code.ensure_loaded?(file.module), do: Code.compile_string(file.source, file.path)
+    end)
 
     %{source_model: source_model, target_model: target_model}
+  end
+
+  test "force generation preserves output bytes and modes" do
+    assert {:ok, profile, []} = PgToEcto.Profile.validate(PgToEctoDemo.Profile)
+    paths = Enum.map(profile.tables, & &1.file) ++ [profile.migration_file]
+    snapshots = snapshot_outputs(paths)
+
+    assert {:ok, _result} = PgToEcto.generate(PgToEctoDemo.Profile, force: true)
+    assert_outputs_match(snapshots)
+  end
+
+  test "force reports destructive actions before writing files" do
+    path = "lib/pg_to_ecto_demo/customer.ex"
+    original = File.read!(path)
+    File.write!(path, "defmodule PgToEctoDemo.Customer do\n  use Ecto.Schema\nend\n")
+
+    on_exit(fn -> File.write!(path, original) end)
+
+    output =
+      capture_io(fn ->
+        assert :ok = Mix.Tasks.PgToEcto.Generate.run(["--force"])
+      end)
+
+    warning_position =
+      :binary.match(output, "Force replaced the unmanaged schema file") |> elem(0)
+
+    write_position = :binary.match(output, "updated #{path}") |> elem(0)
+    assert warning_position < write_position
   end
 
   test "generated baseline preserves supported source structure", %{
@@ -243,6 +281,44 @@ defmodule PgToEctoDemo.BaselineTest do
                  [nilify_order_id]
                )
     end
+  end
+
+  defp snapshot_outputs(paths) do
+    Enum.map(paths, fn path ->
+      case File.read(path) do
+        {:ok, source} ->
+          {:present, path, source, File.stat!(path).mode}
+
+        {:error, :enoent} ->
+          {:absent, path}
+
+        {:error, reason} ->
+          raise "Could not snapshot #{path}: #{inspect(reason)}"
+      end
+    end)
+  end
+
+  defp restore_outputs(snapshots) do
+    Enum.each(snapshots, fn
+      {:present, path, source, mode} ->
+        File.mkdir_p!(Path.dirname(path))
+        File.write!(path, source)
+        File.chmod!(path, mode)
+
+      {:absent, path} ->
+        File.rm(path)
+    end)
+  end
+
+  defp assert_outputs_match(snapshots) do
+    Enum.each(snapshots, fn
+      {:present, path, source, mode} ->
+        assert File.read!(path) == source
+        assert File.stat!(path).mode == mode
+
+      {:absent, path} ->
+        refute File.exists?(path)
+    end)
   end
 
   defp normalize_model(model) do

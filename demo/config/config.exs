@@ -2,14 +2,8 @@ import Config
 
 base_database = System.get_env("POSTGRES_DB", "pg_to_ecto_demo_test")
 
-nonempty_env = fn name, default ->
-  case System.get_env(name) do
-    value when is_binary(value) and value != "" -> value
-    _ -> default
-  end
-end
-
-password = nonempty_env.("POSTGRES_PASSWORD", "your_postgres_password")
+password = System.fetch_env!("POSTGRES_PASSWORD")
+if password == "", do: raise(ArgumentError, "POSTGRES_PASSWORD must be set to a non-empty value.")
 
 port =
   case Integer.parse(System.get_env("POSTGRES_PORT", "5432")) do

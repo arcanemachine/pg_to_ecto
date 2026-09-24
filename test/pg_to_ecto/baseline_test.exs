@@ -146,6 +146,29 @@ defmodule PgToEcto.BaselineTest do
       assert updated.source =~ "generated_change do"
       assert updated.key == initial.key
     end
+
+    test "force resets a changed region without replacing user migration code" do
+      profile = %{repo: Repo, options: [show_generated_key_comment: true]}
+      assert {:ok, initial} = Baseline.render(profile, wave_one_model())
+
+      existing =
+        initial.source
+        |> String.replace("def change do", "def change do\n    IO.puts(:before_generated)")
+        |> String.replace(
+          "    end\n  end\nend\n",
+          "    end\n    IO.puts(:after_generated)\n  end\nend\n"
+        )
+        |> String.replace("add :active, :boolean", "add :active, :text")
+
+      assert {:error, diagnostics} = Baseline.render(profile, wave_one_model(), existing)
+      assert Enum.any?(diagnostics, &(&1.code == :managed_key_mismatch))
+
+      assert {:ok, forced} = Baseline.render(profile, wave_one_model(), existing, force: true)
+      assert forced.source =~ "IO.puts(:before_generated)"
+      assert forced.source =~ "IO.puts(:after_generated)"
+      assert forced.source =~ "add :active, :boolean"
+      assert Enum.any?(forced.diagnostics, &(&1.code == :force_reset_managed_file))
+    end
   end
 
   describe "Ecto migration defaults" do

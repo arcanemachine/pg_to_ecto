@@ -16,15 +16,16 @@ defmodule PgToEcto.SchemaRenderer do
   @type render_result :: %{files: [artifact()], diagnostics: [Diagnostic.t()]}
 
   @doc false
-  @spec render(map(), map(), map()) :: {:ok, render_result()} | {:error, [Diagnostic.t()]}
-  def render(profile, model, existing_sources \\ %{})
-      when is_map(profile) and is_map(model) and is_map(existing_sources) do
+  @spec render(map(), map(), map(), keyword()) ::
+          {:ok, render_result()} | {:error, [Diagnostic.t()]}
+  def render(profile, model, existing_sources \\ %{}, options \\ [])
+      when is_map(profile) and is_map(model) and is_map(existing_sources) and is_list(options) do
     tables = Map.get(model, :tables, [])
     table_by_identity = Map.new(tables, &{table_identity(&1), &1})
 
     {artifacts, diagnostics} =
       Enum.reduce(tables, {[], []}, fn table, {artifacts, diagnostics} ->
-        case render_table(profile, table, table_by_identity, existing_sources) do
+        case render_table(profile, table, table_by_identity, existing_sources, options) do
           {:ok, artifact, table_diagnostics} ->
             {artifacts ++ [artifact], diagnostics ++ table_diagnostics}
 
@@ -41,13 +42,13 @@ defmodule PgToEcto.SchemaRenderer do
   end
 
   @doc false
-  @spec render_one(map(), map(), map(), map()) ::
+  @spec render_one(map(), map(), map(), map(), keyword()) ::
           {:ok, artifact(), [Diagnostic.t()]} | {:error, [Diagnostic.t()]}
-  def render_one(profile, table, tables, existing_sources \\ %{}) do
-    render_table(profile, table, tables, existing_sources)
+  def render_one(profile, table, tables, existing_sources \\ %{}, options \\ []) do
+    render_table(profile, table, tables, existing_sources, options)
   end
 
-  defp render_table(profile, table, table_by_identity, existing_sources) do
+  defp render_table(profile, table, table_by_identity, existing_sources, options) do
     module = table_module(table)
     path = table_path(table)
     columns = Map.get(table, :columns, [])
@@ -88,16 +89,18 @@ defmodule PgToEcto.SchemaRenderer do
     region_names = Map.keys(regions) |> Enum.sort()
 
     with false <- has_errors?(diagnostics),
-         {:ok, source, key} <-
+         {:ok, source, key, source_diagnostics} <-
            render_source(
              profile,
              module,
              table,
              regions,
              region_names,
-             Map.get(existing_sources, path) || Map.get(existing_sources, module)
+             Map.get(existing_sources, path) || Map.get(existing_sources, module),
+             options
            ) do
-      {:ok, %{module: module, path: path, source: source, key: key}, diagnostics}
+      {:ok, %{module: module, path: path, source: source, key: key},
+       diagnostics ++ source_diagnostics}
     else
       true -> {:error, diagnostics}
       {:error, source_diagnostics} -> {:error, diagnostics ++ source_diagnostics}
@@ -391,7 +394,14 @@ defmodule PgToEcto.SchemaRenderer do
   defp region_map(settings, specs) do
     fields = Enum.map_join(specs, "\n", &render_spec/1)
 
-    regions = %{generated_fields: "generated_fields do\n#{indent(fields, 2)}\nend"}
+    generated_fields =
+      if fields == "" do
+        "generated_fields do\nend"
+      else
+        "generated_fields do\n#{indent(fields, 2)}\nend"
+      end
+
+    regions = %{generated_fields: format_generated_region(generated_fields)}
 
     if settings == "",
       do: regions,
@@ -399,17 +409,26 @@ defmodule PgToEcto.SchemaRenderer do
         Map.put(
           regions,
           :generated_settings,
-          "generated_settings do\n#{indent(settings, 2)}\nend"
+          format_generated_region("generated_settings do\n#{indent(settings, 2)}\nend")
         )
   end
 
-  defp render_source(profile, module, table, regions, region_names, existing_source) do
+  defp format_generated_region(source) do
+    source
+    |> Code.format_string!(formatter_options())
+    |> IO.iodata_to_binary()
+    |> String.trim()
+  rescue
+    _exception -> source
+  end
+
+  defp render_source(profile, module, table, regions, region_names, existing_source, options) do
     show_comment? = Keyword.get(Map.get(profile, :options, []), :show_generated_key_comment, true)
 
     if is_nil(existing_source) do
       new_source(module, table, regions, region_names, show_comment?)
     else
-      update_source(module, existing_source, regions, region_names, show_comment?)
+      update_source(module, table, existing_source, regions, region_names, show_comment?, options)
     end
   end
 
@@ -442,7 +461,7 @@ defmodule PgToEcto.SchemaRenderer do
     with {:ok, key} <- Managed.key_for_source(module, source, region_names),
          {:ok, updated} <- Managed.update_key(source, key),
          {:ok, _ast} <- parse_source(updated) do
-      {:ok, updated, key}
+      {:ok, updated, key, []}
     else
       {:error, reason} ->
         {:error,
@@ -459,33 +478,224 @@ defmodule PgToEcto.SchemaRenderer do
        [error(:invalid_generated_schema, "Generated schema could not be formatted safely.")]}
   end
 
-  defp update_source(module, source, regions, region_names, show_comment?) do
-    with :ok <- ensure_regions(source, region_names),
-         :ok <- ensure_embedded_key(module, source, region_names),
-         :ok <- detect_user_collisions(source, region_names, regions),
-         {:ok, patched} <- Managed.patch_regions(source, regions),
+  defp update_source(module, table, source, regions, region_names, show_comment?, options) do
+    force? = Keyword.get(options, :force, false)
+    known_region_names = [:generated_settings, :generated_fields]
+
+    case managed_region_state(source, known_region_names, region_names) do
+      {:ok, present_region_names, existing_regions, duplicate?} ->
+        update_managed_source(
+          module,
+          source,
+          regions,
+          region_names,
+          present_region_names,
+          existing_regions,
+          duplicate?,
+          show_comment?,
+          force?,
+          table
+        )
+
+      {:error, :unowned_file} when force? ->
+        with {:ok, replacement, key, diagnostics} <-
+               new_source(module, table, regions, region_names, show_comment?) do
+          {:ok, replacement, key,
+           [
+             warning(
+               :force_replaced_unowned_file,
+               "Force replaced the unmanaged schema file #{table_path(table)}."
+             )
+             | diagnostics
+           ]}
+        else
+          {:error, diagnostics} when is_list(diagnostics) -> {:error, diagnostics}
+          {:error, replacement_reason} -> {:error, [source_error(replacement_reason)]}
+        end
+
+      {:error, reason} ->
+        {:error, [source_error(reason)]}
+    end
+  end
+
+  defp update_managed_source(
+         module,
+         source,
+         regions,
+         region_names,
+         present_region_names,
+         existing_regions,
+         duplicate?,
+         show_comment?,
+         force?,
+         table
+       ) do
+    key_result =
+      if duplicate?,
+        do: {:error, [source_error(:region_count_mismatch)]},
+        else: ensure_embedded_key(module, source, present_region_names)
+
+    with :ok <- allow_key_result(key_result, force?),
+         :ok <- detect_user_collisions(source, present_region_names, regions),
+         {:ok, patched} <-
+           patch_existing_regions(
+             source,
+             regions,
+             region_names,
+             present_region_names,
+             existing_regions,
+             duplicate?
+           ),
          {:ok, key} <- Managed.key_for_source(module, patched, region_names),
          {:ok, updated} <- Managed.update_key(patched, key),
          {:ok, updated} <- update_key_comment(updated, show_comment?),
          {:ok, _ast} <- parse_source(updated) do
-      {:ok, updated, key}
+      diagnostics =
+        if key_result == :ok do
+          []
+        else
+          [
+            warning(
+              :force_reset_managed_file,
+              "Force reset the managed schema regions in #{table_path(table)}."
+            )
+          ]
+        end
+
+      {:ok, updated, key, diagnostics}
     else
       {:error, diagnostics} when is_list(diagnostics) -> {:error, diagnostics}
       {:error, reason} -> {:error, [source_error(reason)]}
     end
   end
 
-  defp ensure_regions(source, region_names) do
-    with {:ok, regions} <- Managed.find_regions(source, region_names) do
-      if Enum.all?(region_names, fn name -> Enum.count(regions, &(elem(&1, 0) == name)) == 1 end) do
-        :ok
+  defp managed_region_state(source, known_region_names, _expected_region_names) do
+    with {:ok, regions} <- Managed.find_regions(source, known_region_names) do
+      present_region_names = regions |> Enum.map(&elem(&1, 0)) |> Enum.uniq()
+
+      duplicate? =
+        Enum.any?(known_region_names, fn name ->
+          Enum.count(regions, &(elem(&1, 0) == name)) > 1
+        end)
+
+      if present_region_names == [] do
+        {:error, :unowned_file}
       else
-        {:error, [source_error(:region_count_mismatch)]}
+        {:ok, present_region_names, regions, duplicate?}
       end
     else
-      {:error, reason} -> {:error, [source_error(reason)]}
+      {:error, reason} ->
+        if managed_source_marked?(source, known_region_names),
+          do: {:error, :invalid_managed_schema},
+          else: {:error, reason}
     end
   end
+
+  defp managed_source_marked?(source, known_region_names) do
+    Managed.extract_key(source) != :missing or
+      Enum.any?(known_region_names, &String.contains?(source, Atom.to_string(&1)))
+  end
+
+  defp patch_existing_regions(
+         source,
+         regions,
+         region_names,
+         _present_region_names,
+         existing_regions,
+         true
+       ) do
+    source = remove_region_ranges(source, existing_regions)
+    add_missing_regions(source, regions, region_names, [])
+  end
+
+  defp patch_existing_regions(
+         source,
+         regions,
+         region_names,
+         present_region_names,
+         _existing_regions,
+         false
+       ) do
+    with {:ok, patched} <-
+           Managed.patch_regions(source, replacement_regions(regions, present_region_names)) do
+      add_missing_regions(patched, regions, region_names, present_region_names)
+    end
+  end
+
+  defp remove_region_ranges(source, regions) do
+    ranges =
+      regions
+      |> Enum.map(fn {_name, start, finish} -> {start, finish} end)
+      |> Enum.sort_by(&elem(&1, 0))
+      |> Enum.reduce([], fn {start, finish}, acc ->
+        case acc do
+          [{last_start, last_finish} | rest] when start <= last_finish ->
+            [{last_start, max(last_finish, finish)} | rest]
+
+          _ ->
+            [{start, finish} | acc]
+        end
+      end)
+      |> Enum.sort_by(&elem(&1, 0), :desc)
+
+    Enum.reduce(ranges, source, fn {start, finish}, current ->
+      binary_part(current, 0, start) <> binary_part(current, finish, byte_size(current) - finish)
+    end)
+  end
+
+  defp replacement_regions(regions, present_region_names) do
+    removals = Map.new(present_region_names, &{&1, ""})
+    Map.merge(removals, regions) |> Map.take(present_region_names)
+  end
+
+  defp add_missing_regions(source, regions, region_names, present_region_names) do
+    region_names
+    |> Enum.reject(&(&1 in present_region_names))
+    |> Enum.reduce_while({:ok, source}, fn name, {:ok, current} ->
+      case insert_region(current, name, Map.fetch!(regions, name)) do
+        {:ok, updated} -> {:cont, {:ok, updated}}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
+    end)
+  end
+
+  defp insert_region(source, :generated_settings, replacement) do
+    case Regex.run(~r/^([ \t]*)(schema\b[^\n]*\bdo[ \t]*)$/m, source) do
+      [full, indent, _schema_line] ->
+        replacement = indent_lines_with_prefix(replacement, indent)
+        {:ok, String.replace(source, full, replacement <> "\n\n" <> full, global: false)}
+
+      _ ->
+        {:error, :missing_region_anchor}
+    end
+  end
+
+  defp insert_region(source, :generated_fields, replacement) do
+    case Regex.run(~r/^([ \t]*)(schema\b[^\n]*\bdo[ \t]*)$/m, source) do
+      [full, indent, _schema_line] ->
+        replacement = indent_lines_with_prefix(replacement, indent <> "  ")
+        {:ok, String.replace(source, full, full <> "\n" <> replacement, global: false)}
+
+      _ ->
+        {:error, :missing_region_anchor}
+    end
+  end
+
+  defp insert_region(_source, _name, _replacement), do: {:error, :missing_region_anchor}
+
+  defp indent_lines_with_prefix(text, prefix) do
+    text
+    |> String.split("\n")
+    |> Enum.with_index()
+    |> Enum.map_join("\n", fn
+      {line, 0} -> prefix <> line
+      {line, _index} -> if(line == "", do: line, else: prefix <> line)
+    end)
+  end
+
+  defp allow_key_result(:ok, _force?), do: :ok
+  defp allow_key_result(_result, true), do: :ok
+  defp allow_key_result({:error, diagnostics}, false), do: {:error, diagnostics}
 
   defp ensure_embedded_key(module, source, region_names) do
     with {:ok, embedded} <- Managed.extract_key(source),
@@ -725,17 +935,14 @@ defmodule PgToEcto.SchemaRenderer do
     if String.contains?(source, "# Generated by PgToEcto. Do not modify this key manually.") do
       {:ok, source}
     else
-      case Regex.run(~r/(^\s*@pg_to_ecto_key\s+"pgte1:[^"]+"\s*$)/m, source,
+      case Regex.run(~r/(^[ \t]*@pg_to_ecto_key[ \t]+"pgte1:[^"]+"[ \t]*$)/m, source,
              capture: :all_but_first
            ) do
         [key_line] ->
-          {:ok,
-           String.replace(
-             source,
-             key_line,
-             "# Generated by PgToEcto. Do not modify this key manually.\n" <> key_line,
-             global: false
-           )}
+          indent = Regex.run(~r/^[ \t]*/, key_line) |> List.first()
+          comment = indent <> "# Generated by PgToEcto. Do not modify this key manually."
+
+          {:ok, String.replace(source, key_line, comment <> "\n" <> key_line, global: false)}
 
         _ ->
           {:error, :missing_key_anchor}
@@ -746,7 +953,7 @@ defmodule PgToEcto.SchemaRenderer do
   defp update_key_comment(source, false) do
     {:ok,
      Regex.replace(
-       ~r/^\s*# Generated by PgToEcto\. Do not modify this key manually\.\n/m,
+       ~r/^[ \t]*# Generated by PgToEcto\. Do not modify this key manually\.[ \t]*\n/m,
        source,
        ""
      )}
@@ -780,6 +987,16 @@ defmodule PgToEcto.SchemaRenderer do
 
   defp source_error(:missing_key),
     do: error(:managed_key_missing, "The existing schema has no PgToEcto managed key.")
+
+  defp source_error(:invalid_key),
+    do: error(:managed_key_invalid, "The existing schema has an invalid PgToEcto managed key.")
+
+  defp source_error(:unowned_file),
+    do:
+      error(
+        :unowned_file,
+        "The existing schema file is not managed by PgToEcto. Use force to replace it."
+      )
 
   defp source_error(:mismatched_key),
     do:

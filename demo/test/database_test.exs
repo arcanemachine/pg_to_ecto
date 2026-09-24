@@ -177,15 +177,13 @@ defmodule PgToEctoDemo.DatabaseTest do
              )
   end
 
-  test "uses the demo password fallback and accepts an environment override" do
+  test "requires a non-empty demo password" do
     with_env([{"POSTGRES_PASSWORD", nil}], fn ->
-      assert {:ok, settings} = Database.settings()
-      assert settings.password == "your_postgres_password"
+      assert {:error, "POSTGRES_PASSWORD must be set" <> _rest} = Database.settings()
     end)
 
     with_env([{"POSTGRES_PASSWORD", ""}], fn ->
-      assert {:ok, settings} = Database.settings()
-      assert settings.password == "your_postgres_password"
+      assert {:error, "POSTGRES_PASSWORD must be set" <> _rest} = Database.settings()
     end)
 
     with_env([{"POSTGRES_PASSWORD", "local-demo-password"}], fn ->
@@ -194,13 +192,13 @@ defmodule PgToEctoDemo.DatabaseTest do
     end)
   end
 
-  test "config file uses the fallback for missing and empty passwords" do
+  test "config file requires a non-empty password" do
     with_env([{"POSTGRES_PASSWORD", nil}], fn ->
-      assert config_password() == "your_postgres_password"
+      assert_raise System.EnvError, &config_password/0
     end)
 
     with_env([{"POSTGRES_PASSWORD", ""}], fn ->
-      assert config_password() == "your_postgres_password"
+      assert_raise ArgumentError, ~r/POSTGRES_PASSWORD must be set/, &config_password/0
     end)
   end
 
