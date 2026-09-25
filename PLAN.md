@@ -8,17 +8,17 @@ Phase 6 (Managed Regeneration and File Application) and Phase 7 (Mix-task UX and
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
-The untracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_demo/order.ex`, and `demo/lib/pg_to_ecto_demo/invoice.ex` are intentional outputs from the user’s accepted UAT. Treat them as Phase 8 canonical review candidates, not test leakage. Do not delete or commit them until Phase 8 review and the applicable commit gate determine their disposition.
+The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_demo/order.ex`, and `demo/lib/pg_to_ecto_demo/invoice.ex` are the accepted Phase 8 canonical outputs. Preserve them as integrated review evidence; do not delete or overwrite them outside the generator’s managed-region contract.
 
 Phase 8 (Wave 1 and `0.1.0` Readiness) is active with Task 01 complete and Task 02 user acceptance approved. The readiness candidate and ownership transition are integrated and ready for Architect acceptance.
 
 ## Current owner
 
-Sergeant, for Phase 8 coordination, review, acceptance handling, and integration.
+Architect, for bounded Phase 8 architecture acceptance.
 
 ## Next intended owner
 
-Architect is the current owner for bounded Phase 8 architecture acceptance. Sergeant is next owner for Task 04 closeout after Architect acceptance.
+Sergeant, for Task 04 closeout after Architect acceptance.
 
 ## Next intended action
 

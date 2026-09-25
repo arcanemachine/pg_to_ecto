@@ -6,7 +6,7 @@ title: Wave 1 and 0.1.0 Readiness
 # Phase 8 — Wave 1 and `0.1.0` Readiness
 
 Planning status: Complete and execution-ready  
-Execution owner: Sergeant  
+Execution owner: Architect (Task 03 acceptance)
 Execution status: Ready for Architect acceptance
 Route: Sergeant-coordinated phase with one fresh Worker for readiness evidence
 
@@ -85,7 +85,7 @@ Do not:
 
 ## Canonical demo output
 
-Task 01 generates one canonical set of demo schema modules and confirms the checked-in baseline matches the source fixture. The files remain review candidates until user acceptance and integration authority are complete.
+Task 01 generated one canonical set of demo schema modules and confirmed the checked-in baseline matches the source fixture. The tracked files are accepted and integrated review evidence; preserve them under the generator’s managed-region contract.
 
 Tests that exercise destructive or malformed-output cases must continue to use ignored temporary paths or restore all pre-existing bytes and file modes. Ordinary verification must leave the working tree free of incidental generated artifacts except the deliberate canonical review candidates named by Task 01.
 
