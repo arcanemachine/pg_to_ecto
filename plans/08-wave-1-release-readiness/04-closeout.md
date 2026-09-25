@@ -1,7 +1,7 @@
 ---
 kind: sergeant-closeout-task
 role: sergeant
-status: pending
+status: in-progress
 ---
 
 # Task 04 — Phase closeout

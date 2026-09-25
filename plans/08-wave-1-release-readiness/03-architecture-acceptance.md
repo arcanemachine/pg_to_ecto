@@ -1,7 +1,7 @@
 ---
 kind: architecture-acceptance-task
 role: architect
-status: needs-review
+status: complete
 ---
 
 # Task 03 — Architecture acceptance
@@ -13,6 +13,12 @@ Role: Architect
 Perform the bounded architecture sanity pass for Wave 1 and `0.1.0` readiness. Decide whether the candidate may proceed to Sergeant closeout, requires correction, or needs a user decision.
 
 This task does not repeat full implementation review and does not authorize tags, Hex publication, or release publication.
+
+## Acceptance disposition
+
+**Accepted.** The bounded review found no product, architecture, dependency, security, capability, packaging, or release blocker. Root and demo verification passed against the clean accepted tree, including disposable PostgreSQL behavior, source-to-target structure, independent constraints and associations, managed-source safety, package contents, dependency posture, and documentation truthfulness. User acceptance is recorded as approved.
+
+Phase 8 remains bounded to release readiness. Tagging, publication, release, and Wave 2 work remain separately gated. Task 04 is ready for Sergeant closeout.
 
 ## Required evidence
 

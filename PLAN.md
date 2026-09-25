@@ -10,19 +10,19 @@ The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed.
 
 The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_demo/order.ex`, and `demo/lib/pg_to_ecto_demo/invoice.ex` are the accepted Phase 8 canonical outputs. Preserve them as integrated review evidence; do not delete or overwrite them outside the generator’s managed-region contract.
 
-Phase 8 (Wave 1 and `0.1.0` Readiness) is active with Task 01 complete and Task 02 user acceptance approved. The readiness candidate and ownership transition are integrated and ready for Architect acceptance.
+Phase 8 (Wave 1 and `0.1.0` Readiness) has passed bounded architecture acceptance. Tasks 01–03 are complete, and the accepted readiness candidate is ready for Sergeant closeout.
 
 ## Current owner
 
-Architect, for bounded Phase 8 architecture acceptance.
+Sergeant, for Phase 8 Task 04 closeout.
 
 ## Next intended owner
 
-Sergeant, for Task 04 closeout after Architect acceptance.
+Architect, for direction review after Phase 8 closeout.
 
 ## Next intended action
 
-Architect picks up `plans/08-wave-1-release-readiness/03-architecture-acceptance.md` for bounded acceptance. Do not tag, publish, release, or begin Wave 2.
+Sergeant picks up `plans/08-wave-1-release-readiness/04-closeout.md` for closeout. Do not tag, publish, release, or begin Wave 2.
 
 ## Accepted verification evidence
 

@@ -6,8 +6,8 @@ title: Wave 1 and 0.1.0 Readiness
 # Phase 8 — Wave 1 and `0.1.0` Readiness
 
 Planning status: Complete and execution-ready  
-Execution owner: Architect (Task 03 acceptance)
-Execution status: Ready for Architect acceptance
+Execution owner: Sergeant (Task 04 closeout)
+Execution status: Task 04 closeout in progress
 Route: Sergeant-coordinated phase with one fresh Worker for readiness evidence
 
 ## Purpose
@@ -143,7 +143,7 @@ The recorded disposition must be `approved`, `waived by user`, `failed`, or `pen
 
 ## Architecture acceptance
 
-After Sergeant review and user acceptance, Architect performs a bounded sanity pass covering:
+After Sergeant review and user acceptance, Architect performed a bounded sanity pass covering:
 
 - Wave 1 scope and explicit non-goals;
 - PostgreSQL source authority and read-only behavior;
@@ -155,7 +155,7 @@ After Sergeant review and user acceptance, Architect performs a bounded sanity p
 - user acceptance disposition;
 - release, publication, and Wave 2 boundaries.
 
-Architecture acceptance does not publish or tag the package.
+**Architecture acceptance disposition: accepted.** Root and demo verification, disposable PostgreSQL behavior, canonical output, managed-source safety, package contents, dependency posture, and documentation were verified. No correction or user decision is required. Architecture acceptance does not publish or tag the package.
 
 ## Task sequence
 
@@ -163,8 +163,8 @@ Architecture acceptance does not publish or tag the package.
 | --- | --- | --- | --- | --- |
 | 01 | Worker | complete | `01-readiness-evidence.md` | Sergeant reviews evidence and corrections |
 | 02 | Sergeant | complete | `02-review-and-user-acceptance.md` | User acceptance approved; candidate integrated |
-| 03 | Architect | needs-review | `03-architecture-acceptance.md` | Ready for owner pickup: bounded architecture acceptance |
-| 04 | Sergeant | pending | `04-closeout.md` | Phase closed; release actions remain separately gated |
+| 03 | Architect | complete | `03-architecture-acceptance.md` | Sergeant closeout |
+| 04 | Sergeant | in-progress | `04-closeout.md` | Phase closeout; release actions remain separately gated |
 
 Status values: `pending`, `in-progress`, `complete`, `blocked`, `needs-work`, `needs-review`.
 
