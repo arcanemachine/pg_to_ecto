@@ -3,8 +3,9 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Task 9.1 in progress
-- Current owner: Worker (under Sergeant coordination)
+- Execution status: Task 9.1 complete; architecture acceptance pending
+- Current owner: Architect
+- User acceptance: Approved
 - Selected execution route: Standard coordinated route
 - Public-release authority: User-owned remote actions only; no agent authority
 

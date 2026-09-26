@@ -1,9 +1,18 @@
 # Changelog
 
-## 0.1.0 candidate (unpublished)
+All notable changes to this project will be documented in this file.
 
-- Prepared the Wave 1 PostgreSQL-to-Ecto generator for release review.
-- Added canonical demo schemas and a regenerable local-development baseline migration with managed source regions.
-- Verified read-only catalog introspection, supported scalar mappings, defaults, nullability, foreign keys, referential actions, indexes, diagnostics, safe regeneration, and force recovery.
+The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html).
 
-Publication and release remain separately gated.
+## [0.1.0] - 2026-09-26
+
+### Added
+
+- Explicit profile-based selection of PostgreSQL tables and Ecto modules.
+- Read-only PostgreSQL catalog introspection for the supported Wave 1 table, column, key, foreign-key, referential-action, and index surface.
+- Generated Ecto schemas and one regenerable baseline migration.
+- Managed source regions, idempotent regeneration, dry-run behavior, force recovery, and preservation of user-owned source.
+- Structured warnings for partial, omitted, or ambiguous mappings.
+- Mix task and programmatic generation entry points.
+- A synthetic disposable PostgreSQL demo and verification surface.

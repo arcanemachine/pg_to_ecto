@@ -132,6 +132,10 @@ The normal demo gate is the same set under `demo/`, with a configured disposable
 
 Report skipped checks and blockers honestly. Compiler, formatter, logger, database, and filesystem warnings may not be ignored.
 
+Fix routine in-scope defects and check failures directly when the correction stays within the owner's allowed files and does not require a product, architecture, dependency, runtime, security, capability, packaging, or user-facing decision. Same-task corrections, obvious documentation fixes, formatting, warning cleanup, and other mechanical repairs do not go up the ownership chain merely because a packet did not predict the exact defect.
+
+Escalate only when the correction materially changes approved behavior or scope, crosses an ownership boundary, requires a protected decision, needs user acceptance, involves credentials or an irreversible action, or cannot be completed safely by the current owner. Durable plans record decisions, boundaries, ownership, and reusable guidance—not transient defects or one-off correction history.
+
 ## Source control
 
 Treat commits as lifecycle boundaries, not incidental cleanup.

@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress. Phase 9 and the standard coordinated route are approved; Sergeant dispatched this packet to an eligible fresh Worker.
+Complete and verified; user acceptance approved. Architecture acceptance is pending under the Phase 9 release gate.
 
 ## Owner
 
@@ -49,6 +49,8 @@ Keep the dependency requirement `~> 0.1.0` unchanged. Do not rewrite setup, gene
 
 Replace the final paragraph's candidate-oriented release-readiness wording with an evergreen boundary statement. It must continue to say that the document describes the verified Wave 1 behavior and must not imply that deferred capabilities are included.
 
+Fix obvious documentation defects in the allowed files when a required check exposes them and the correction preserves established meaning, behavior, and scope. Keep such corrections narrow and continue without escalation. Stop only when a correction requires a new public claim, package change, product decision, or edit outside the allowed files.
+
 ### `CHANGELOG.md`
 
 Use the established release structure:
@@ -82,6 +84,10 @@ The `Added` section must concisely preserve the accepted candidate evidence and 
 Keep unsupported and deferred capabilities out of the `Added` list. Do not advertise historical migration reconstruction, automatic association or changeset generation, composite keys, UUIDs, decimals, arrays, advanced indexes, checks, generated columns, PostgreSQL-native objects, or any other deferred feature.
 
 Remove the candidate-only sentence stating that publication and release remain gated. The changelog included in the final archive describes the release itself; lifecycle gates remain in `PLAN.md`, the phase plan, and `AGENTS.md`.
+
+## Authorized scope correction
+
+Architect authorized one narrow documentation correction for the required warning-free `mix docs` gate: replace only the unresolved Markdown directory link ``[`demo/`](demo/)`` with inline code `` `demo/` `` while preserving the surrounding sentence. Do not add demo files to the Hex package, change warning policy, or suppress warnings. This correction does not change user-facing or product scope.
 
 ## Non-goals
 
