@@ -3,9 +3,10 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Task 9.1 complete; architecture acceptance pending
-- Current owner: Architect
+- Execution status: Architecture acceptance approved; local release closeout ready
+- Current owner: Sergeant
 - User acceptance: Approved
+- Architecture acceptance: Approved
 - Selected execution route: Standard coordinated route
 - Public-release authority: User-owned remote actions only; no agent authority
 
@@ -182,6 +183,8 @@ After user acceptance, Architect performs a bounded sanity pass covering:
 - release authority boundaries and exact next owner/action.
 
 Architect reports findings and waits for the user before recording acceptance or advancing to closeout. Rejection names the blocking finding and correction owner.
+
+Architecture acceptance was approved on 2026-09-26. The bounded pass confirmed the approved scope and authority boundaries, unchanged source-authority and generated-source ownership posture, honest release claims, the intended dependency and package surfaces, complete root and disposable-PostgreSQL verification, and approved user acceptance. The rebuilt Hex archive contained only the intended library and package files and had checksum `a91e2f8639ca4c5fb083b35ef2af1c5ca2218770d17a8a39fe838911acee55f7`; the archive and generated documentation were removed after inspection. The Hex registry did not contain `pg_to_ecto` when rechecked. No architecture blocker remains.
 
 ### 7. Local release closeout
 

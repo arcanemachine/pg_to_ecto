@@ -6,7 +6,7 @@ Purpose: this file points agents to the current PgToEcto lifecycle state. Keep i
 
 Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Documentation), and Phase 8 (Wave 1 and `0.1.0` Readiness) are implementation-complete, verified, accepted, and integrated.
 
-Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Task 9.1 release-document preparation is complete, verified, and user-accepted; architecture acceptance is ready for pickup. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
+Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Task 9.1 release-document preparation is complete, verified, user-accepted, and architecture-accepted. Local release closeout is ready for Sergeant pickup. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
@@ -14,22 +14,22 @@ The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_d
 
 ## Current owner
 
-Architect, for bounded Phase 9 architecture acceptance.
+Sergeant, for Phase 9 local release closeout.
 
 ## Next intended owner
 
-Architect, for architecture acceptance disposition and closeout direction.
+Sergeant, for the authorized release commit and local lightweight tag.
 
 ## Next intended action
 
-Architect performs the bounded release-boundary and package-honesty review defined in `plans/phase-9-release/README.md`. User acceptance is approved; architecture acceptance remains pending.
+Sergeant performs the local release closeout defined in step 7 of `plans/phase-9-release/README.md`: align the pre-publication state, run the final affected checks, create `chore: release v0.1.0`, and create lightweight tag `v0.1.0` pointing exactly to that commit. Sergeant must not push or publish.
 
 ## Current gates
 
 - Phase 9 planning and the standard coordinated route are approved.
-- Task 9.1 is complete, verified, and user-accepted; architecture acceptance is pending.
+- Task 9.1 is complete, verified, user-accepted, and architecture-accepted.
 - The approved route authorizes the planning handoff commit, routine in-plan dispatch, accepted integration commits, and the local lightweight tag after the plan's acceptance gates.
-- User acceptance disposition: approved. Architecture acceptance remains required before release closeout.
+- User acceptance disposition: approved. Architecture acceptance disposition: approved. Local release closeout is ready for Sergeant pickup.
 - Git pushes, Hex publication, release publication, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
 - Wave 2 or later capability work is not activated.
 
@@ -48,9 +48,9 @@ The Phase 8 accepted tree passed:
 - deterministic demo output byte/mode restoration;
 - diff check and post-test artifact cleanup.
 
-During Phase 9 planning, `mix hex.build` successfully built the configured `0.1.0` package and the generated archive was removed. The public Hex registry did not contain `pg_to_ecto` at the time checked. Both facts must be revalidated during execution.
+Phase 9 architecture acceptance revalidated the release candidate on 2026-09-26. Root formatting, warnings-as-errors compilation, 64 tests, and documentation generation passed. Demo formatting, warnings-as-errors compilation, and 31 tests passed against disposable PostgreSQL. `git diff --check` passed. The exact Hex archive contained only the intended library and package files, had checksum `a91e2f8639ca4c5fb083b35ef2af1c5ca2218770d17a8a39fe838911acee55f7`, and was removed after inspection. The public Hex registry did not contain `pg_to_ecto` when rechecked. The working tree was clean before the acceptance-state edits.
 
-These are recovery facts, not substitutes for the Phase 9 release gates.
+These are recovery facts, not substitutes for the remaining local closeout and user-owned public-release gates.
 
 ## Authoritative pointers
 
