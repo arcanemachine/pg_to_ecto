@@ -3,10 +3,12 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Architecture acceptance approved; local release closeout ready
-- Current owner: Sergeant
+- Execution status: Local release commit and tag complete; public release pending
+- Current owner: User
 - User acceptance: Approved
 - Architecture acceptance: Approved
+- Release commit: `6b7eac4` (`chore: release v0.1.0`)
+- Lightweight tag: `v0.1.0` -> `6b7eac4`
 - Selected execution route: Standard coordinated route
 - Public-release authority: User-owned remote actions only; no agent authority
 

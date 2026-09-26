@@ -6,7 +6,7 @@ Purpose: this file points agents to the current PgToEcto lifecycle state. Keep i
 
 Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Documentation), and Phase 8 (Wave 1 and `0.1.0` Readiness) are implementation-complete, verified, accepted, and integrated.
 
-Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Task 9.1 release-document preparation is complete, verified, user-accepted, and architecture-accepted. Local release closeout is ready for Sergeant pickup. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
+Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Task 9.1 release-document preparation is complete, verified, user-accepted, and architecture-accepted. The local release commit and lightweight tag are complete; user-owned public release actions remain. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
@@ -14,22 +14,22 @@ The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_d
 
 ## Current owner
 
-Sergeant, for Phase 9 local release closeout.
+User, for the public push and Hex publication actions.
 
 ## Next intended owner
 
-Sergeant, for the authorized release commit and local lightweight tag.
+Sergeant, for post-publication verification after the user reports completion.
 
 ## Next intended action
 
-Sergeant performs the local release closeout defined in step 7 of `plans/phase-9-release/README.md`: align the pre-publication state, run the final affected checks, create `chore: release v0.1.0`, and create lightweight tag `v0.1.0` pointing exactly to that commit. Sergeant must not push or publish.
+User pushes the release commit and lightweight tag, then publishes `pg_to_ecto` `0.1.0` to Hex. Sergeant must not perform remote actions or access credentials.
 
 ## Current gates
 
 - Phase 9 planning and the standard coordinated route are approved.
 - Task 9.1 is complete, verified, user-accepted, and architecture-accepted.
 - The approved route authorizes the planning handoff commit, routine in-plan dispatch, accepted integration commits, and the local lightweight tag after the plan's acceptance gates.
-- User acceptance disposition: approved. Architecture acceptance disposition: approved. Local release closeout is ready for Sergeant pickup.
+- User acceptance disposition: approved. Architecture acceptance disposition: approved. Local release commit `6b7eac4` and lightweight tag `v0.1.0` are complete.
 - Git pushes, Hex publication, release publication, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
 - Wave 2 or later capability work is not activated.
 
