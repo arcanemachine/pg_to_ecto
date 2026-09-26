@@ -2,7 +2,7 @@
 
 PgToEcto turns explicitly selected PostgreSQL tables into readable Ecto schemas and one regenerable baseline migration.
 
-> Project status: pre-release; the Wave 1 surface is implemented and still under active development.
+> Project status: `0.1.0` is the current initial Wave 1 release. It provides the verified Wave 1 surface described below; deferred capabilities are not included.
 
 ## Setup
 
@@ -100,7 +100,7 @@ The migration is a declarative local-development baseline. It is not a reconstru
 
 ## Demo consumer
 
-The nested [`demo/`](demo/) project uses synthetic, disposable PostgreSQL databases and checked-in source fixtures. It never uses company databases or application data.
+The nested `demo/` project uses synthetic, disposable PostgreSQL databases and checked-in source fixtures. It never uses company databases or application data.
 
 ```bash
 cd demo
@@ -122,4 +122,4 @@ mix compile --warnings-as-errors
 mix test
 ```
 
-This documentation describes the verified Wave 1 behavior. Release readiness, publication, version tagging, and the final initial-release changelog remain separately gated.
+This documentation describes the verified Wave 1 behavior included in the `0.1.0` release; deferred capabilities are not included.
