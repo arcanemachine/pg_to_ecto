@@ -4,29 +4,38 @@ Purpose: this file points agents to the current PgToEcto lifecycle state. Keep i
 
 ## Current status
 
-Phase 6 (Managed Regeneration and File Application) and Phase 7 (Mix-task UX and Documentation) are implementation-complete, verified, accepted, and integrated. The user explicitly accepted the Phase 7 CLI behavior, including Mix-native ANSI colors and the green `No changes required.` successful no-op message.
+Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Documentation), and Phase 8 (Wave 1 and `0.1.0` Readiness) are implementation-complete, verified, accepted, and integrated.
+
+Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Release execution is ready for Sergeant pickup and has not started. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
-The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_demo/order.ex`, and `demo/lib/pg_to_ecto_demo/invoice.ex` are the accepted Phase 8 canonical outputs. Preserve them as integrated review evidence; do not delete or overwrite them outside the generator’s managed-region contract.
-
-Phase 8 (Wave 1 and `0.1.0` Readiness) is closed. User acceptance and bounded architecture acceptance are complete, and the `0.1.0` readiness candidate is accepted for release consideration. Release, publication, and tagging remain separately gated.
+The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_demo/order.ex`, and `demo/lib/pg_to_ecto_demo/invoice.ex` are the accepted Phase 8 canonical outputs. Preserve them as integrated review evidence; do not delete or overwrite them outside the generator's managed-region contract.
 
 ## Current owner
 
-Architect, for next-direction review.
+Sergeant, for Phase 9 execution pickup and Worker dispatch.
 
 ## Next intended owner
 
-Architect, for direction review before any future capability work.
+Worker, for Task 9.1 after Sergeant confirms an eligible fresh Worker and dispatches `plans/phase-9-release/task-01-release-documentation.md`.
 
 ## Next intended action
 
-Architect reviews the next substantive candidate and its gate. No Wave 2 work is activated automatically. Do not tag, publish, or release.
+Sergeant recovers the committed Phase 9 state, performs the required dispatch preflight, and dispatches Task 9.1 to an eligible fresh Worker. The approved route authorizes routine in-plan dispatch and integration commits without another confirmation round.
+
+## Current gates
+
+- Phase 9 planning and the standard coordinated route are approved.
+- Execution is ready for Sergeant owner pickup; Task 9.1 has not yet been dispatched.
+- The approved route authorizes the planning handoff commit, routine in-plan dispatch, accepted integration commits, and the local lightweight tag after the plan's acceptance gates.
+- User acceptance and architecture acceptance remain required at the points defined by the phase plan.
+- Git pushes, Hex publication, release publication, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
+- Wave 2 or later capability work is not activated.
 
 ## Accepted verification evidence
 
-The current accepted tree has passed:
+The Phase 8 accepted tree passed:
 
 - root format check;
 - root warnings-as-errors compilation;
@@ -39,21 +48,24 @@ The current accepted tree has passed:
 - deterministic demo output byte/mode restoration;
 - diff check and post-test artifact cleanup.
 
-These counts are recovery evidence, not a substitute for inspecting the current tree after reset.
+During Phase 9 planning, `mix hex.build` successfully built the configured `0.1.0` package and the generated archive was removed. The public Hex registry did not contain `pg_to_ecto` at the time checked. Both facts must be revalidated during execution.
 
-## Durable coordination pointers
+These are recovery facts, not substitutes for the Phase 9 release gates.
+
+## Authoritative pointers
 
 - Project coordination and role guidance: `AGENTS.md`
-- Accepted release-candidate documentation: `CHANGELOG.md`
-- Closed Phase 8 evidence: preserved in the accepted tree, verification history, and commit history
+- Approved Phase 9 plan: `plans/phase-9-release/README.md`
+- Ready release-documentation task: `plans/phase-9-release/task-01-release-documentation.md`
+- Accepted release-candidate documentation: `README.md` and `CHANGELOG.md`
 
 ## Authority boundaries
 
 No current authority exists for:
 
 - discarding or rewriting accepted work;
-- commits beyond the accepted integration and separately authorized task work;
-- tags, Hex publication, release publication, or version release actions;
+- work outside the approved Phase 9 plan and route;
+- remote tags, Git pushes, Hex publication, release publication, or credential use by an agent;
 - Wave 2 or later capability work;
 - company-system, company-data, or non-disposable database access.
 

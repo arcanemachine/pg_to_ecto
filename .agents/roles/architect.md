@@ -49,6 +49,8 @@ When planning is complete and execution-ready:
 5. verify and commit the planning state when authority exists;
 6. report that execution has not started and the user may reset Architect and start Sergeant.
 
+Approval of an execution-ready plan followed by explicit selection of the standard coordinated route authorizes Architect to align and commit the reset-safe planning handoff. Do not ask for a separate handoff-commit confirmation. The selected route also authorizes Sergeant to pick up and execute the approved plan, including routine in-plan Worker dispatch and integration commits after their stated gates; it does not authorize user-owned remote release actions.
+
 Do not leave Architect as current owner merely because Sergeant has not been started. Do not dispatch implementation from Architect unless the user explicitly selects Architect-direct coordination.
 
 ## Architecture acceptance

@@ -137,11 +137,28 @@ Report skipped checks and blockers honestly. Compiler, formatter, logger, databa
 Treat commits as lifecycle boundaries, not incidental cleanup.
 
 - Obtain commit authority from the active plan, workflow, task, or user.
+- Approval of an execution-ready plan followed by explicit route selection authorizes the outgoing Architect to align and commit the reset-safe planning handoff. Do not ask for a redundant commit confirmation before the selected owner can pick up the work.
 - Stage only current accepted work.
 - Do not commit failing checks, generated runtime data, unrelated files, or behavior awaiting required user acceptance.
 - Use Conventional Commits-style subjects.
 - Do not bypass hooks or checks without explicit permission.
 - Do not leave a completed, verified, accepted phase uncommitted when the approved route grants Sergeant integration responsibility.
+
+## Release process
+
+Releases use the project's manual, explicitly gated process. Do not add release automation unless the user approves it as separate scope.
+
+When preparing a release:
+
+1. Review the accepted changes and update every affected public documentation surface. Keep `README.md`, module documentation, package extras, and `CHANGELOG.md` consistent. Never rewrite an already-published changelog entry; add a new entry instead.
+2. Synchronize the target version in `mix.exs`, the installation version in `README.md`, and the changelog heading `## [X.Y.Z] - YYYY-MM-DD`. For the first release, candidate metadata already set to the target version may be finalized without an artificial version bump.
+3. Run the complete project verification required by the active release plan, including root and disposable-demo checks, and resolve every warning.
+4. Build and inspect the exact Hex archive. Confirm its version, metadata, dependency declarations, file list, and documentation before publication, then remove the local archive after evidence is recorded.
+5. After required user and architecture acceptance, create the release commit with subject `chore: release vX.Y.Z`.
+6. Tag that exact release commit with a lightweight tag: `git tag vX.Y.Z <release-commit>`.
+7. The user pushes the commits and tag and publishes the package to Hex. Agents must not request or expose Hex credentials and must not perform pushes, publication, or other irreversible remote release actions without separate explicit authority.
+
+Approval of an executable release plan and its execution route grants the planned local release commit and lightweight tag after the plan's acceptance gates pass. Do not ask for redundant commit or local-tag confirmation. A GitHub Release is not part of the normal process. User-owned remote pushes and Hex publication remain separately gated.
 
 ## Documentation and path style
 
