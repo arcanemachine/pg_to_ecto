@@ -3,8 +3,8 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Ready for owner pickup
-- Current owner: Sergeant
+- Execution status: Task 9.1 in progress
+- Current owner: Worker (under Sergeant coordination)
 - Selected execution route: Standard coordinated route
 - Public-release authority: User-owned remote actions only; no agent authority
 
@@ -85,7 +85,7 @@ Do not duplicate detailed product behavior into coordination files. Release-faci
 
 The Architect records the durable release procedure in `AGENTS.md`, creates this phase plan and its task packet, and aligns `PLAN.md`. These planning changes establish the approved release boundaries but do not themselves perform release execution, tagging, pushing, or publication.
 
-The plan and standard coordinated route are approved. Architect commits the reset-safe planning handoff, Sergeant becomes current owner with execution marked `Ready for owner pickup`, and Sergeant may begin routine in-plan dispatch after recovering the committed state. No additional dispatch or integration-commit confirmation is required before the plan's stated acceptance gates.
+The plan and standard coordinated route are approved. Architect commits the reset-safe planning handoff, Sergeant becomes current owner with execution marked `Ready for owner pickup`, and Sergeant may begin routine in-plan dispatch after recovering the committed state. Task 9.1 is now dispatched to the Worker; Sergeant retains review and sequencing responsibility. No additional dispatch or integration-commit confirmation is required before the plan's stated acceptance gates.
 
 ### 2. Release-document preparation
 

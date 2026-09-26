@@ -2,7 +2,7 @@
 
 ## Status
 
-Ready for Sergeant dispatch. Phase 9 and the standard coordinated route are approved; execution begins when Sergeant performs the reset-safe pickup and dispatches this packet to an eligible fresh Worker.
+In progress. Phase 9 and the standard coordinated route are approved; Sergeant dispatched this packet to an eligible fresh Worker.
 
 ## Owner
 

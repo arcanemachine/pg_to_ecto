@@ -6,7 +6,7 @@ Purpose: this file points agents to the current PgToEcto lifecycle state. Keep i
 
 Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Documentation), and Phase 8 (Wave 1 and `0.1.0` Readiness) are implementation-complete, verified, accepted, and integrated.
 
-Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Release execution is ready for Sergeant pickup and has not started. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
+Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Task 9.1 release-document preparation is in progress under Sergeant coordination. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
@@ -14,20 +14,20 @@ The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_d
 
 ## Current owner
 
-Sergeant, for Phase 9 execution pickup and Worker dispatch.
+Worker, for Task 9.1 release-document preparation under Sergeant coordination.
 
 ## Next intended owner
 
-Worker, for Task 9.1 after Sergeant confirms an eligible fresh Worker and dispatches `plans/phase-9-release/task-01-release-documentation.md`.
+Sergeant, for Task 9.1 review and deterministic verification after the Worker reports completion.
 
 ## Next intended action
 
-Sergeant recovers the committed Phase 9 state, performs the required dispatch preflight, and dispatches Task 9.1 to an eligible fresh Worker. The approved route authorizes routine in-plan dispatch and integration commits without another confirmation round.
+Worker completes `plans/phase-9-release/task-01-release-documentation.md` and reports evidence to Sergeant. The approved route authorizes routine in-plan sequencing and integration commits without another confirmation round.
 
 ## Current gates
 
 - Phase 9 planning and the standard coordinated route are approved.
-- Execution is ready for Sergeant owner pickup; Task 9.1 has not yet been dispatched.
+- Task 9.1 is in progress with the dispatched Worker; Sergeant owns review and sequencing.
 - The approved route authorizes the planning handoff commit, routine in-plan dispatch, accepted integration commits, and the local lightweight tag after the plan's acceptance gates.
 - User acceptance and architecture acceptance remain required at the points defined by the phase plan.
 - Git pushes, Hex publication, release publication, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
