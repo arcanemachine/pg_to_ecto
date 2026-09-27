@@ -1,7 +1,7 @@
 defmodule PgToEcto.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
 
   def project do
     [
@@ -11,7 +11,7 @@ defmodule PgToEcto.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "PgToEcto",
-      description: "Turn existing PostgreSQL database tables into Ecto migrations and schemas.",
+      description: "Retired package; use postgres_to_ecto ~> 0.1.2 instead.",
       source_url: "https://github.com/arcanemachine/pg_to_ecto",
       homepage_url: "https://github.com/arcanemachine/pg_to_ecto",
       docs: [main: "readme", extras: ["README.md", "CHANGELOG.md"]],
