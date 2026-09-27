@@ -3,13 +3,13 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Hex publication and retirement complete; GitHub synchronization pending
-- Current owner: User, for authenticated GitHub push
+- Execution status: Released and closed
+- Current owner: User, to select the next substantive product direction
 - Selected execution route: Architect-direct coordination
 - Old-package release: `pg_to_ecto` `0.1.1`, published with docs and retired
 - Renamed release: `postgres_to_ecto` `0.1.2`, published with docs
 - Compatibility posture: No aliases, dual tasks, dual configuration, or automatic old-format handling
-- Remaining blocker: Public GitHub `main` and tags do not yet contain the accepted release commits
+- Public verification: GitHub source/tags, Hex packages, HexDocs, checksums, and retirements verified
 
 ## Purpose
 
@@ -31,8 +31,8 @@ This is a breaking namespace rename, not a compatibility layer. Existing users r
 - The current checkout is `/workspace/projects/postgres_to_ecto`.
 - Hex exposes `postgres_to_ecto` `0.1.2` with docs and the accepted checksum `2c0068b3e90f74554eb0e5d6339e5f4f895a9fe7b08effcfe25db60df7f8129f`.
 - Hex exposes `pg_to_ecto` `0.1.1` with docs; versions `0.1.0` and `0.1.1` are retired with reason `renamed` and point users to `postgres_to_ecto`.
-- The public GitHub repository has been renamed to `arcanemachine/postgres_to_ecto`, but its public `main` remains at `0423a22` and its public tag set does not include `v0.1.1` or `v0.1.2`.
-- This container can read the public repository but has no GitHub write authentication. Public-read access does not grant push authority or credentials.
+- The public GitHub repository is `arcanemachine/postgres_to_ecto`; public `main` contains the accepted renamed source and public tags `v0.1.0`, `v0.1.1`, and `v0.1.2` resolve to their accepted release commits.
+- Public GitHub source metadata, Hex metadata, HexDocs availability, package checksums, and retirement messages have been verified without credentials.
 - Coordination-document centralization under `/workspace/projects/_plans` remains separate from this phase because its stale modified destination requires its own resolved migration route.
 
 ## User-approved decisions
@@ -245,17 +245,9 @@ Public status:
 2. Publish and verify `postgres_to_ecto` `0.1.2`: complete.
 3. Publish `pg_to_ecto` `0.1.1` with retirement HexDocs: complete.
 4. Retire `pg_to_ecto` `0.1.0` and `0.1.1` with reason `renamed`: complete.
-5. Push accepted `main` and lightweight tags `v0.1.0`, `v0.1.1`, and `v0.1.2`: incomplete.
+5. Push accepted `main` and lightweight tags `v0.1.0`, `v0.1.1`, and `v0.1.2`: complete.
 
-The remaining commands require a GitHub-authenticated environment:
-
-```text
-git remote set-url origin git@github.com:arcanemachine/postgres_to_ecto.git
-git push -u origin main
-git push origin v0.1.0 v0.1.1 v0.1.2
-```
-
-This container has no configured GitHub login, credential helper, or usable SSH host/authentication state. Public repository visibility permits reads, not writes. Preserve the accepted local branch and tags until the authenticated push succeeds.
+Credential-free verification confirmed public `main` at closeout commit `f6e07d3` and tags `v0.1.0`, `v0.1.1`, and `v0.1.2` at `6b7eac4`, `5b7bb22`, and `4cd6117` respectively. No public release action remains.
 
 ## Architecture acceptance
 
