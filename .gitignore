@@ -5,6 +5,13 @@
 /*.dump
 erl_crash.dump
 
+# Central planning and agent guidance are maintained outside this repository.
+/AGENTS.md
+/.agents
+/PLAN.md
+/COORDINATION.md
+/plans/
+
 # Generated test/demo databases and local credentials
 .env
 *.local.exs
