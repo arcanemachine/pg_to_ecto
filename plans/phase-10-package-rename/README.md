@@ -3,13 +3,13 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Both local release boundaries complete; user-owned remote sequence pending
-- Current owner: User, for repository rename, pushes, publications, and old-version retirement
+- Execution status: Hex publication and retirement complete; GitHub synchronization pending
+- Current owner: User, for authenticated GitHub push
 - Selected execution route: Architect-direct coordination
-- Old-package release: `pg_to_ecto` `0.1.1`, no-code retirement patch
-- Renamed release: `postgres_to_ecto` `0.1.2`, direct in-place rename
+- Old-package release: `pg_to_ecto` `0.1.1`, published with docs and retired
+- Renamed release: `postgres_to_ecto` `0.1.2`, published with docs
 - Compatibility posture: No aliases, dual tasks, dual configuration, or automatic old-format handling
-- Public authority: Repository rename, pushes, Hex publication, Hex retirement, and credentials remain user-owned
+- Remaining blocker: Public GitHub `main` and tags do not yet contain the accepted release commits
 
 ## Purpose
 
@@ -26,14 +26,13 @@ This is a breaking namespace rename, not a compatibility layer. Existing users r
 
 ## Present facts
 
-- `pg_to_ecto` `0.1.0` has been reported as published on Hex. Exact package and HexDocs verification must be repeated before release work changes public state.
-- The accepted `0.1.0` release commit is `6b7eac4` with lightweight tag `v0.1.0`. Commit `0423a22` records the subsequent publication handoff.
-- The local `pg_to_ecto` `0.1.1` release commit is `5b7bb22`, and lightweight tag `v0.1.1` points exactly to it.
-- The checkout has been renamed to `/workspace/projects/postgres_to_ecto`; its remote remains `git@github.com:arcanemachine/pg_to_ecto.git` until the user-owned remote repository rename.
-- The current application/package is `postgres_to_ecto` `0.1.2`. Task 10.2 renamed package metadata, application configuration, library modules, Mix task names, paths, tests, demo code, generated output, managed markers, diagnostics, documentation, and process guidance.
-- The renamed release passed architecture acceptance with no blocking findings. The exact package archive checksum is `2c0068b3e90f74554eb0e5d6339e5f4f895a9fe7b08effcfe25db60df7f8129f`.
-- The managed-output attribute is `@pg_to_ecto_key`; valid values begin with `pgte1:`. The key payload is derived from the target module and managed regions. A mechanical change to `@postgres_to_ecto_key` and `postgreste1:` can preserve the existing payload after users update their files, but the renamed generator will not parse the old attribute or prefix.
-- Generated documentation and package archives have been removed. The release commit contains only intended tracked source, documentation, test, demo, and coordination changes.
+- Local release commit `5b7bb22` and lightweight tag `v0.1.1` own the accepted `pg_to_ecto` retirement release.
+- Local release commit `4cd6117` and lightweight tag `v0.1.2` own the accepted `postgres_to_ecto` rename release.
+- The current checkout is `/workspace/projects/postgres_to_ecto`.
+- Hex exposes `postgres_to_ecto` `0.1.2` with docs and the accepted checksum `2c0068b3e90f74554eb0e5d6339e5f4f895a9fe7b08effcfe25db60df7f8129f`.
+- Hex exposes `pg_to_ecto` `0.1.1` with docs; versions `0.1.0` and `0.1.1` are retired with reason `renamed` and point users to `postgres_to_ecto`.
+- The public GitHub repository has been renamed to `arcanemachine/postgres_to_ecto`, but its public `main` remains at `0423a22` and its public tag set does not include `v0.1.1` or `v0.1.2`.
+- This container can read the public repository but has no GitHub write authentication. Public-read access does not grant push authority or credentials.
 - Coordination-document centralization under `/workspace/projects/_plans` remains separate from this phase because its stale modified destination requires its own resolved migration route.
 
 ## User-approved decisions
@@ -236,26 +235,27 @@ Present:
 
 Automated checks do not replace architecture review. Any blocking finding returns only the affected task for same-task correction when possible. The user's waiver removes repeated conversational approval prompts; it does not lower verification, archive inspection, architecture-acceptance, or remote-authority requirements.
 
-## User-owned public sequence
+## Public sequence status
 
-After both local release commits/tags exist and both acceptance gates pass:
+The user explicitly authorized the complete remote sequence. An unambiguous affirmative response to the exact presented sequence is actionable authorization, not merely a readiness report.
 
-1. Rename the public repository from `pg_to_ecto` to `postgres_to_ecto` and update the local `origin` URL if Git does not preserve the expected destination automatically.
-2. Push the accepted branch and lightweight tags `v0.1.1` and `v0.1.2`.
-3. Publish `postgres_to_ecto` `0.1.2` from the exact `v0.1.2` source state.
-4. Verify the new Hex package, HexDocs, checksum where available, source link, and installation guidance.
-5. Publish `pg_to_ecto` `0.1.1` from the exact `v0.1.1` source state. The coordinator may prepare non-credential checkout instructions, but the user performs publication.
-6. Verify that `https://hexdocs.pm/pg_to_ecto` resolves to the `0.1.1` retirement documentation and links to the live replacement.
-7. Retire both old versions:
+Public status:
 
-   ```text
-   mix hex.retire pg_to_ecto 0.1.0 renamed --message "Renamed to postgres_to_ecto; install postgres_to_ecto instead."
-   mix hex.retire pg_to_ecto 0.1.1 renamed --message "Renamed to postgres_to_ecto; install postgres_to_ecto instead."
-   ```
+1. Public repository rename to `arcanemachine/postgres_to_ecto`: complete.
+2. Publish and verify `postgres_to_ecto` `0.1.2`: complete.
+3. Publish `pg_to_ecto` `0.1.1` with retirement HexDocs: complete.
+4. Retire `pg_to_ecto` `0.1.0` and `0.1.1` with reason `renamed`: complete.
+5. Push accepted `main` and lightweight tags `v0.1.0`, `v0.1.1`, and `v0.1.2`: incomplete.
 
-8. Report completion without sharing credentials or sensitive output.
+The remaining commands require a GitHub-authenticated environment:
 
-Agents must not perform these remote or credential-bearing actions without separate explicit authority. A partial public success is a blocker; preserve state and recover forward rather than rewriting published history.
+```text
+git remote set-url origin git@github.com:arcanemachine/postgres_to_ecto.git
+git push -u origin main
+git push origin v0.1.0 v0.1.1 v0.1.2
+```
+
+This container has no configured GitHub login, credential helper, or usable SSH host/authentication state. Public repository visibility permits reads, not writes. Preserve the accepted local branch and tags until the authenticated push succeeds.
 
 ## Architecture acceptance
 
@@ -278,7 +278,7 @@ For `0.1.2`, confirm:
 - package contents, full verification, real PostgreSQL evidence, source link, version, and user acceptance are complete;
 - remote actions remain user-owned.
 
-Architecture acceptance reports findings and waits for the user before recording acceptance, as required by the project lifecycle. Once accepted, local release commit/tag mechanics continue without another redundant approval.
+The user explicitly waived separate intermediate acceptance prompts and authorized uninterrupted execution through both local release boundaries. Architect completed both bounded acceptance passes and recorded their evidence before the release commits and tags.
 
 ## Stop conditions
 
@@ -304,8 +304,8 @@ Phase 10 is complete only when:
 
 - `pg_to_ecto` `0.1.1` is a verified no-code retirement release with default HexDocs directing users to the replacement;
 - `postgres_to_ecto` `0.1.2` is a fully renamed, verified, accepted, published package with no compatibility aliases;
-- lightweight tags `v0.1.1` and `v0.1.2` point to their exact accepted release commits;
-- the public repository/source URL uses `postgres_to_ecto`;
+- public lightweight tags `v0.1.1` and `v0.1.2` point to their exact accepted release commits;
+- public `main` contains the accepted renamed source and the repository/source URL uses `postgres_to_ecto`;
 - both old Hex versions are retired with reason `renamed` and the correct destination;
 - root, docs, disposable-demo, archive, rename-audit, and artifact-cleanliness gates pass;
 - migration guidance protects user-owned source and accurately describes the breaking rename;
