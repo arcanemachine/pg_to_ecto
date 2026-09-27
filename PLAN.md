@@ -6,7 +6,9 @@ Purpose: this file points agents to the current PgToEcto lifecycle state. Keep i
 
 Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Documentation), and Phase 8 (Wave 1 and `0.1.0` Readiness) are implementation-complete, verified, accepted, and integrated.
 
-Phase 9 (`0.1.0` Release) planning is complete and execution-ready under the approved standard coordinated route. Task 9.1 release-document preparation is complete, verified, user-accepted, and architecture-accepted. The local release commit and lightweight tag are complete; user-owned public release actions remain. The approved manual release process consists of final documentation, full verification, exact Hex archive inspection, user and architecture acceptance, a `chore: release v0.1.0` release commit, a lightweight `v0.1.0` tag, and user-owned remote pushes and Hex publication. No GitHub Release or release automation is included.
+Phase 9 (`0.1.0` Release) local release commit and lightweight tag are complete at `6b7eac4` / `v0.1.0`; the public `pg_to_ecto` `0.1.0` publication has been reported.
+
+Phase 10 (`pg_to_ecto` Retirement and `postgres_to_ecto` Rename) planning is complete and execution-ready. The phase first prepares a no-code `pg_to_ecto` `0.1.1` retirement release, then renames the existing project in place and releases `postgres_to_ecto` `0.1.2`. Version history continues in one repository; no compatibility aliases or automatic old-format handling are included. After the replacement is public and verified, the user publishes the old retirement patch and retires both old Hex versions with reason `renamed`.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
@@ -14,23 +16,25 @@ The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_d
 
 ## Current owner
 
-User, for the public push and Hex publication actions.
+Architect, for direct Phase 10 execution coordination.
 
 ## Next intended owner
 
-Sergeant, for post-publication verification after the user reports completion.
+A fresh Worker, for Task 10.1 (`pg_to_ecto` `0.1.1` retirement-patch preparation).
 
 ## Next intended action
 
-User pushes the release commit and lightweight tag, then publishes `pg_to_ecto` `0.1.0` to Hex. Sergeant must not perform remote actions or access credentials.
+Architect commits the reset-safe planning handoff and dispatches Task 10.1 to a fresh Worker. Architect then reviews, corrects, verifies, and sequences the approved tasks without per-task approval. The only planned user-facing execution gates are acceptance of each exact publishable release candidate and the final user-owned remote operations.
 
 ## Current gates
 
-- Phase 9 planning and the standard coordinated route are approved.
-- Task 9.1 is complete, verified, user-accepted, and architecture-accepted.
-- The approved route authorizes the planning handoff commit, routine in-plan dispatch, accepted integration commits, and the local lightweight tag after the plan's acceptance gates.
-- User acceptance disposition: approved. Architecture acceptance disposition: approved. Local release commit `6b7eac4` and lightweight tag `v0.1.0` are complete.
-- Git pushes, Hex publication, release publication, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
+- Phase 9 planning and the standard coordinated route were approved; local release commit `6b7eac4` and lightweight tag `v0.1.0` are complete.
+- The published status of `pg_to_ecto` `0.1.0` was reported by Sergeant; exact post-publication verification is not yet recorded.
+- Phase 10's `pg_to_ecto` `0.1.1` no-code retirement patch, in-place rename, `postgres_to_ecto` `0.1.2` continuation, no-alias posture, and Hex retirement sequence are user-approved.
+- The execution-ready plan and two task packets are complete; Architect-direct coordination is approved.
+- The selected route authorizes the reset-safe planning handoff commit and ordinary in-plan dispatch, review, correction, verification, local release commits, and lightweight tags after their stated acceptance gates.
+- Remote repository rename, Git pushes, Hex publication, package retirement, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
+- Coordination-document centralization under `/workspace/projects/_plans` remains separate and unapproved for this phase.
 - Wave 2 or later capability work is not activated.
 
 ## Accepted verification evidence
@@ -58,6 +62,9 @@ These are recovery facts, not substitutes for the remaining local closeout and u
 - Approved Phase 9 plan: `plans/phase-9-release/README.md`
 - Ready release-documentation task: `plans/phase-9-release/task-01-release-documentation.md`
 - Accepted release-candidate documentation: `README.md` and `CHANGELOG.md`
+- Active Phase 10 rename and retirement plan: `plans/phase-10-package-rename/README.md`
+- Ready Task 10.1 packet: `plans/phase-10-package-rename/task-01-retirement-patch.md`
+- Blocked Task 10.2 packet: `plans/phase-10-package-rename/task-02-in-place-rename.md`
 
 ## Authority boundaries
 
