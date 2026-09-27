@@ -2,8 +2,6 @@
 
 PostgresToEcto turns explicitly selected PostgreSQL tables into readable Ecto schemas and one regenerable baseline migration.
 
-> Project status: `0.1.2` is the current renamed Wave 1 release. It provides the verified Wave 1 surface described below; deferred capabilities are not included.
-
 ## Setup
 
 Add PostgresToEcto to a development-only dependency in the consumer project:
@@ -101,15 +99,15 @@ Add the optional formatter import to a consumer's `.formatter.exs`:
 | Qualified and unqualified table names | Supported |
 | `public` and selected non-public schemas | Supported |
 | Ordinary tables and common string, integer, boolean, and identifier types | Supported |
-| Nullability, safe literal defaults, primary keys, foreign keys, and referential actions | Supported for the verified Wave 1 surface |
+| Nullability, safe literal defaults, primary keys, foreign keys, and referential actions | Supported for the documented scalar-type surface |
 | Ordinary and unique indexes | Supported |
 | Foreign keys to unselected tables | Partial: local fields remain and a warning is emitted |
 | Unmappable ordinary schema fields | Partial: migration identity is preserved and the schema field is omitted with a warning |
 | Mixed user/generated source and safe regeneration | Supported |
 | Dry run, force recovery, atomic per-file replacement, and no-op generation | Supported |
-| Composite keys, UUIDs, decimals, arrays, advanced indexes, checks, and generated columns | Deferred to Wave 2 |
+| Composite keys, UUIDs, decimals, arrays, advanced indexes, checks, and generated columns | Not supported |
 | Enums, domains, extensions, views, triggers, grants, and PostgreSQL-native objects | Deferred |
-| Historical or incremental migration reconstruction | Not part of the initial product |
+| Historical or incremental migration reconstruction | Not supported |
 | Automatic `many_to_many` inference and changeset generation | Deferred |
 
 The migration is a declarative local-development baseline. It is not a reconstruction of production migration history.
@@ -137,5 +135,3 @@ mix format --check-formatted
 mix compile --warnings-as-errors
 mix test
 ```
-
-This documentation describes the verified Wave 1 behavior included in the `0.1.2` release; deferred capabilities are not included.
