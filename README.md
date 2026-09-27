@@ -1,8 +1,10 @@
 # PgToEcto
 
+> **Retirement notice:** `pg_to_ecto` has been renamed to [`postgres_to_ecto`](https://hex.pm/packages/postgres_to_ecto). This is a breaking package, module, Mix task, and configuration change with no compatibility aliases. The replacement release is prepared as [`postgres_to_ecto` `0.1.2`](https://hexdocs.pm/postgres_to_ecto); install it as `{:postgres_to_ecto, "~> 0.1.2"}` once available, and do not begin new integrations with `pg_to_ecto`. Existing `pg_to_ecto` behavior remains available only through this historical old package while you migrate.
+
 PgToEcto turns explicitly selected PostgreSQL tables into readable Ecto schemas and one regenerable baseline migration.
 
-> Project status: `0.1.0` is the current initial Wave 1 release. It provides the verified Wave 1 surface described below; deferred capabilities are not included.
+> Project status: `0.1.1` is the historical retirement patch for the initial Wave 1 release. It preserves the verified Wave 1 surface described below; deferred capabilities are not included.
 
 ## Setup
 
@@ -10,7 +12,7 @@ Add PgToEcto to a development-only dependency in the consumer project:
 
 ```elixir
 defp deps do
-  [{:pg_to_ecto, "~> 0.1.0", runtime: false}]
+  [{:pg_to_ecto, "~> 0.1.1", runtime: false}]
 end
 ```
 
@@ -122,4 +124,4 @@ mix compile --warnings-as-errors
 mix test
 ```
 
-This documentation describes the verified Wave 1 behavior included in the `0.1.0` release; deferred capabilities are not included.
+This documentation describes the verified Wave 1 behavior included in the `0.1.1` retirement release; deferred capabilities are not included.

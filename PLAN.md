@@ -8,7 +8,7 @@ Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Do
 
 Phase 9 (`0.1.0` Release) local release commit and lightweight tag are complete at `6b7eac4` / `v0.1.0`; the public `pg_to_ecto` `0.1.0` publication has been reported.
 
-Phase 10 (`pg_to_ecto` Retirement and `postgres_to_ecto` Rename) planning is complete and execution-ready. The phase first prepares a no-code `pg_to_ecto` `0.1.1` retirement release, then renames the existing project in place and releases `postgres_to_ecto` `0.1.2`. Version history continues in one repository; no compatibility aliases or automatic old-format handling are included. After the replacement is public and verified, the user publishes the old retirement patch and retires both old Hex versions with reason `renamed`.
+Phase 10 (`pg_to_ecto` Retirement and `postgres_to_ecto` Rename) is executing under the approved Architect-direct route. Task 10.1 is complete, verified, user-accepted, and architecture-accepted; local release commit `chore: release v0.1.1` and lightweight tag `v0.1.1` form the old-package retirement boundary. The next step renames the local checkout and dispatches Task 10.2 for `postgres_to_ecto` `0.1.2`. Version history continues in one repository; no compatibility aliases or automatic old-format handling are included. After the replacement is public and verified, the user publishes the old retirement patch and retires both old Hex versions with reason `renamed`.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
@@ -20,11 +20,11 @@ Architect, for direct Phase 10 execution coordination.
 
 ## Next intended owner
 
-A fresh Worker, for Task 10.1 (`pg_to_ecto` `0.1.1` retirement-patch preparation).
+A fresh Worker, for Task 10.2 (direct rename to `postgres_to_ecto` `0.1.2`).
 
 ## Next intended action
 
-Architect commits the reset-safe planning handoff and dispatches Task 10.1 to a fresh Worker. Architect then reviews, corrects, verifies, and sequences the approved tasks without per-task approval. The only planned user-facing execution gates are acceptance of each exact publishable release candidate and the final user-owned remote operations.
+Architect creates the accepted `chore: release v0.1.1` commit and lightweight `v0.1.1` tag, renames the local checkout to `/workspace/projects/postgres_to_ecto`, aligns durable paths, and dispatches Task 10.2 to a fresh Worker. The next planned user-facing execution gate is acceptance of the exact `postgres_to_ecto` `0.1.2` release candidate.
 
 ## Current gates
 
@@ -32,7 +32,8 @@ Architect commits the reset-safe planning handoff and dispatches Task 10.1 to a 
 - The published status of `pg_to_ecto` `0.1.0` was reported by Sergeant; exact post-publication verification is not yet recorded.
 - Phase 10's `pg_to_ecto` `0.1.1` no-code retirement patch, in-place rename, `postgres_to_ecto` `0.1.2` continuation, no-alias posture, and Hex retirement sequence are user-approved.
 - The execution-ready plan and two task packets are complete; Architect-direct coordination is approved.
-- The selected route authorizes the reset-safe planning handoff commit and ordinary in-plan dispatch, review, correction, verification, local release commits, and lightweight tags after their stated acceptance gates.
+- Task 10.1 is complete, verified, and architecture-accepted. The user approved the complete plan and expressly waived separate intermediate acceptance prompts through both local release-ready states; its local release commit and lightweight tag are authorized.
+- The selected route and waiver authorize ordinary in-plan dispatch, review, correction, verification, acceptance recording, local release commits, and lightweight tags without further permission requests.
 - Remote repository rename, Git pushes, Hex publication, package retirement, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
 - Coordination-document centralization under `/workspace/projects/_plans` remains separate and unapproved for this phase.
 - Wave 2 or later capability work is not activated.
@@ -54,7 +55,9 @@ The Phase 8 accepted tree passed:
 
 Phase 9 architecture acceptance revalidated the release candidate on 2026-09-26. Root formatting, warnings-as-errors compilation, 64 tests, and documentation generation passed. Demo formatting, warnings-as-errors compilation, and 31 tests passed against disposable PostgreSQL. `git diff --check` passed. The exact Hex archive contained only the intended library and package files, had checksum `a91e2f8639ca4c5fb083b35ef2af1c5ca2218770d17a8a39fe838911acee55f7`, and was removed after inspection. The public Hex registry did not contain `pg_to_ecto` when rechecked. The working tree was clean before the acceptance-state edits.
 
-These are recovery facts, not substitutes for the remaining local closeout and user-owned public-release gates.
+Task 10.1 acceptance on 2026-09-26 confirmed a documentation-and-metadata-only `pg_to_ecto` `0.1.1` patch. Root formatting, warnings-as-errors compilation, 64 tests, documentation generation, and diff checks passed. Demo formatting, warnings-as-errors compilation, and 31 disposable-PostgreSQL tests passed. Runtime source and dependencies are unchanged from `v0.1.0`. The exact archive contained only intended package files, had checksum `8c3a2845056679da20f9f4639864cc102c4ca8470daf2c502fdbf5b76e01c55c`, and was removed after inspection.
+
+These are recovery facts, not substitutes for the remaining Task 10.2 and user-owned public-release gates.
 
 ## Authoritative pointers
 
@@ -63,8 +66,8 @@ These are recovery facts, not substitutes for the remaining local closeout and u
 - Ready release-documentation task: `plans/phase-9-release/task-01-release-documentation.md`
 - Accepted release-candidate documentation: `README.md` and `CHANGELOG.md`
 - Active Phase 10 rename and retirement plan: `plans/phase-10-package-rename/README.md`
-- Ready Task 10.1 packet: `plans/phase-10-package-rename/task-01-retirement-patch.md`
-- Blocked Task 10.2 packet: `plans/phase-10-package-rename/task-02-in-place-rename.md`
+- Completed Task 10.1 packet: `plans/phase-10-package-rename/task-01-retirement-patch.md`
+- Next Task 10.2 packet: `plans/phase-10-package-rename/task-02-in-place-rename.md`
 
 ## Authority boundaries
 

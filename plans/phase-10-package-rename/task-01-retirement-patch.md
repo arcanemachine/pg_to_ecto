@@ -2,7 +2,7 @@
 
 ## Status
 
-Ready for dispatch after the approved Architect-direct planning handoff is committed.
+Complete, verified, user-waived for separate acceptance, and architecture-accepted. Included in the local `v0.1.1` release boundary.
 
 ## Owner
 

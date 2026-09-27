@@ -3,8 +3,8 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Task 10.1 ready for dispatch
-- Current owner: Architect, for direct coordination
+- Execution status: Task 10.1 accepted; local `v0.1.1` release boundary in progress
+- Current owner: Architect, for direct coordination through both release-ready states
 - Selected execution route: Architect-direct coordination
 - Old-package release: `pg_to_ecto` `0.1.1`, no-code retirement patch
 - Renamed release: `postgres_to_ecto` `0.1.2`, direct in-place rename
@@ -207,9 +207,9 @@ Verification must also confirm:
 
 ## User acceptance surfaces
 
-This phase has two meaningful user acceptance gates, one per publishable artifact. Routine task dispatch, corrections, checks, integration mechanics, and in-plan sequencing do not return to the user for approval.
+The user approved the complete plan and explicitly instructed Architect to execute uninterrupted through both local release-ready states, then provide final remote push/publication instructions. This is a user-initiated waiver of separate intermediate acceptance prompts. Routine task dispatch, corrections, checks, integration mechanics, acceptance recording, commits, tags, and in-plan sequencing proceed without further permission requests. The final report must still present the exact evidence and commands the user needs before performing irreversible remote actions.
 
-### Gate 1 — Old-package retirement release
+### Waived intermediate gate 1 — Old-package retirement release
 
 Present:
 
@@ -221,7 +221,7 @@ Present:
 - proposed local release commit/tag;
 - confirmation that publication is intentionally deferred until the replacement exists.
 
-### Gate 2 — Renamed release
+### Waived intermediate gate 2 — Renamed release
 
 Present:
 
@@ -233,7 +233,7 @@ Present:
 - proposed local release commit/tag;
 - exact remaining user-owned public steps.
 
-Automated checks do not replace either acceptance. Rejection returns only the affected task for same-task correction when possible.
+Automated checks do not replace architecture review. Any blocking finding returns only the affected task for same-task correction when possible. The user's waiver removes repeated conversational approval prompts; it does not lower verification, archive inspection, architecture-acceptance, or remote-authority requirements.
 
 ## User-owned public sequence
 
