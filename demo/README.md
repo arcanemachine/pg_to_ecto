@@ -1,4 +1,4 @@
-# PgToEcto demo consumer
+# PostgresToEcto demo consumer
 
 The demo is a nested Ecto consumer with a disposable PostgreSQL source fixture.
 The source database is built from the checked-in migration at
@@ -13,12 +13,12 @@ POSTGRES_HOST=localhost       # optional, defaults to localhost
 POSTGRES_PORT=5432            # optional, defaults to 5432
 POSTGRES_USER=postgres        # optional, defaults to postgres
 POSTGRES_PASSWORD=...         # required; no default is used
-POSTGRES_DB=pg_to_ecto_demo_test  # optional default
+POSTGRES_DB=postgres_to_ecto_demo_test  # optional default
 ```
 
 `POSTGRES_DB` is the disposable source database name. The target database is
 always `${POSTGRES_DB}_target`. Lifecycle commands refuse names that do not
-start with `pg_to_ecto_demo` and contain only lowercase letters, digits, `_`,
+start with `postgres_to_ecto_demo` and contain only lowercase letters, digits, `_`,
 or `-`. The commands never drop or create a database outside that family.
 
 `POSTGRES_PASSWORD` must be set to a non-empty value before database commands
@@ -43,9 +43,9 @@ source and target databases, use `mix demo.drop`.
 The same operations are available without aliases:
 
 ```bash
-mix run -e 'PgToEctoDemo.Database.setup!()'
-mix run -e 'PgToEctoDemo.Database.reset!()'
-mix run -e 'PgToEctoDemo.Database.drop!()'
+mix run -e 'PostgresToEctoDemo.Database.setup!()'
+mix run -e 'PostgresToEctoDemo.Database.reset!()'
+mix run -e 'PostgresToEctoDemo.Database.drop!()'
 ```
 
 The source fixture contains selected `customers`, `orders`, and
@@ -59,8 +59,8 @@ non-`public` namespace.
 After `mix demo.reset`, run the generator against the disposable source Repo:
 
 ```bash
-mix pg_to_ecto.generate --dry-run
-mix pg_to_ecto.generate
+mix postgres_to_ecto.generate --dry-run
+mix postgres_to_ecto.generate
 ```
 
 The dry run reports schema and migration changes without writing. Normal

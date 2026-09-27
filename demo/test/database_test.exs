@@ -1,9 +1,9 @@
-defmodule PgToEctoDemo.DatabaseTest do
+defmodule PostgresToEctoDemo.DatabaseTest do
   use ExUnit.Case, async: false
 
   import ExUnit.CaptureLog
 
-  alias PgToEctoDemo.Database
+  alias PostgresToEctoDemo.Database
 
   setup_all do
     logs =
@@ -161,9 +161,9 @@ defmodule PgToEctoDemo.DatabaseTest do
   end
 
   test "profile selects the public and non-public fixtures explicitly" do
-    assert Application.get_env(:pg_to_ecto, :generator) == PgToEctoDemo.Profile
+    assert Application.get_env(:postgres_to_ecto, :generator) == PostgresToEctoDemo.Profile
 
-    assert {:ok, validated, []} = PgToEcto.Profile.validate(PgToEctoDemo.Profile)
+    assert {:ok, validated, []} = PostgresToEcto.Profile.validate(PostgresToEctoDemo.Profile)
 
     assert Enum.map(validated.tables, &{&1.schema, &1.table}) == [
              {"public", "customers"},
@@ -218,14 +218,14 @@ defmodule PgToEctoDemo.DatabaseTest do
   test "derives the default and overridden target database names" do
     with_env([{"POSTGRES_DB", nil}], fn ->
       assert {:ok, settings} = Database.settings()
-      assert settings.database == "pg_to_ecto_demo_test"
-      assert settings.target_database == "pg_to_ecto_demo_test_target"
+      assert settings.database == "postgres_to_ecto_demo_test"
+      assert settings.target_database == "postgres_to_ecto_demo_test_target"
     end)
 
-    with_env([{"POSTGRES_DB", "pg_to_ecto_demo_custom"}], fn ->
+    with_env([{"POSTGRES_DB", "postgres_to_ecto_demo_custom"}], fn ->
       assert {:ok, settings} = Database.settings()
-      assert settings.database == "pg_to_ecto_demo_custom"
-      assert settings.target_database == "pg_to_ecto_demo_custom_target"
+      assert settings.database == "postgres_to_ecto_demo_custom"
+      assert settings.target_database == "postgres_to_ecto_demo_custom_target"
     end)
   end
 
@@ -240,16 +240,16 @@ defmodule PgToEctoDemo.DatabaseTest do
   end
 
   test "rejects overlong and unsafe derived target names before connecting" do
-    overlong_base = "pg_to_ecto_demo" <> String.duplicate("a", 47)
+    overlong_base = "postgres_to_ecto_demo" <> String.duplicate("a", 47)
 
     with_env([{"POSTGRES_DB", overlong_base}], fn ->
-      assert_raise RuntimeError, ~r/short pg_to_ecto_demo/, fn ->
+      assert_raise RuntimeError, ~r/short postgres_to_ecto_demo/, fn ->
         Database.reset!()
       end
     end)
 
-    with_env([{"POSTGRES_DB", "pg_to_ecto_demo_test!"}], fn ->
-      assert_raise RuntimeError, ~r/Names must start with pg_to_ecto_demo/, fn ->
+    with_env([{"POSTGRES_DB", "postgres_to_ecto_demo_test!"}], fn ->
+      assert_raise RuntimeError, ~r/Names must start with postgres_to_ecto_demo/, fn ->
         Database.reset!()
       end
     end)
@@ -276,8 +276,8 @@ defmodule PgToEctoDemo.DatabaseTest do
     config = Config.Reader.read!(Path.expand("../config/config.exs", __DIR__))
 
     config
-    |> Keyword.fetch!(:pg_to_ecto_demo)
-    |> Keyword.fetch!(PgToEctoDemo.SourceRepo)
+    |> Keyword.fetch!(:postgres_to_ecto_demo)
+    |> Keyword.fetch!(PostgresToEctoDemo.SourceRepo)
     |> Keyword.fetch!(:password)
   end
 

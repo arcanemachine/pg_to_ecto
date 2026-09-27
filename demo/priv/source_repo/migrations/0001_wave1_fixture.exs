@@ -1,4 +1,4 @@
-defmodule PgToEctoDemo.SourceRepo.Migrations.Wave1Fixture do
+defmodule PostgresToEctoDemo.SourceRepo.Migrations.Wave1Fixture do
   use Ecto.Migration
 
   def change do
