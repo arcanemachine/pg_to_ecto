@@ -1,10 +1,10 @@
 # Agent Guide
 
-Purpose: this file is the normal starting point for agents working in PgToEcto. It defines the project-local coordination model and points each active role to its supplement. Follow the universal role contract first; this file adds only PgToEcto-specific recovery, routing, safety, verification, and artifact rules.
+Purpose: this file is the normal starting point for agents working in PostgresToEcto. It defines the project-local coordination model and points each active role to its supplement. Follow the universal role contract first; this file adds only PostgresToEcto-specific recovery, routing, safety, verification, and artifact rules.
 
 ## Project direction
 
-PgToEcto is an Elixir development tool that projects explicitly selected PostgreSQL tables into readable Ecto schemas and one regenerable baseline migration. PostgreSQL remains the source authority. Generated output must preserve supported semantics, report loss or ambiguity plainly, and never overwrite user-owned source silently.
+PostgresToEcto is an Elixir development tool that projects explicitly selected PostgreSQL tables into readable Ecto schemas and one regenerable baseline migration. PostgreSQL remains the source authority. Generated output must preserve supported semantics, report loss or ambiguity plainly, and never overwrite user-owned source silently.
 
 The core pipeline is:
 
@@ -49,7 +49,7 @@ Keep `PLAN.md` and the active phase README aligned whenever ownership, task stat
 
 ## Single-current-owner coordination
 
-PgToEcto uses the same single-current-owner lifecycle that works in Practorium:
+PostgresToEcto uses the same single-current-owner lifecycle that works in Practorium:
 
 - Architect owns product and architecture decisions, executable planning, architecture acceptance, and successor direction.
 - Sergeant owns execution coordination, Worker dispatch, review, corrections, deterministic verification, user-acceptance presentation, integration, and closeout.
@@ -108,7 +108,7 @@ Run an initial agent-driven trial before presenting UAT. Automated tests prepare
 
 ## PostgreSQL and credential safety
 
-- Use only synthetic fixtures and clearly disposable PgToEcto demo/test databases.
+- Use only synthetic fixtures and clearly disposable PostgresToEcto demo/test databases.
 - Require `POSTGRES_PASSWORD`; do not commit a password fallback.
 - Never print connection URLs, passwords, or credentials.
 - Never access company databases, services, schemas, data, or credentials.

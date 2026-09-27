@@ -2,7 +2,7 @@
 
 ## Status
 
-Ready for dispatch to a fresh Worker. Task 10.1 is accepted and committed as `chore: release v0.1.1`; lightweight tag `v0.1.1` points to that release commit; the local checkout root is `/workspace/projects/postgres_to_ecto`.
+Complete, verified, user-waived for separate acceptance, and architecture-accepted. Included in the local `v0.1.2` release boundary.
 
 ## Owner
 

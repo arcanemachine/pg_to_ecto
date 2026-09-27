@@ -1,6 +1,6 @@
 import Config
 
-base_database = System.get_env("POSTGRES_DB", "pg_to_ecto_demo_test")
+base_database = System.get_env("POSTGRES_DB", "postgres_to_ecto_demo_test")
 
 password = System.fetch_env!("POSTGRES_PASSWORD")
 if password == "", do: raise(ArgumentError, "POSTGRES_PASSWORD must be set to a non-empty value.")
@@ -20,20 +20,20 @@ common_repo_config = [
   pool_size: 2
 ]
 
-config :pg_to_ecto, generator: PgToEctoDemo.Profile
+config :postgres_to_ecto, generator: PostgresToEctoDemo.Profile
 
-config :pg_to_ecto_demo,
-  ecto_repos: [PgToEctoDemo.SourceRepo, PgToEctoDemo.TargetRepo]
+config :postgres_to_ecto_demo,
+  ecto_repos: [PostgresToEctoDemo.SourceRepo, PostgresToEctoDemo.TargetRepo]
 
-config :pg_to_ecto_demo,
-       PgToEctoDemo.SourceRepo,
+config :postgres_to_ecto_demo,
+       PostgresToEctoDemo.SourceRepo,
        Keyword.merge(common_repo_config,
          database: base_database,
          priv: "priv/repo"
        )
 
-config :pg_to_ecto_demo,
-       PgToEctoDemo.TargetRepo,
+config :postgres_to_ecto_demo,
+       PostgresToEctoDemo.TargetRepo,
        Keyword.merge(common_repo_config,
          database: base_database <> "_target",
          priv: "priv/target_repo"

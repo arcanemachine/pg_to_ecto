@@ -1,19 +1,19 @@
-defmodule PgToEcto.MixProject do
+defmodule PostgresToEcto.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.1.2"
 
   def project do
     [
-      app: :pg_to_ecto,
+      app: :postgres_to_ecto,
       version: @version,
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      name: "PgToEcto",
-      description: "Retired package; use postgres_to_ecto ~> 0.1.2 instead.",
-      source_url: "https://github.com/arcanemachine/pg_to_ecto",
-      homepage_url: "https://github.com/arcanemachine/pg_to_ecto",
+      name: "PostgresToEcto",
+      description: "Turn existing PostgreSQL database tables into Ecto migrations and schemas.",
+      source_url: "https://github.com/arcanemachine/postgres_to_ecto",
+      homepage_url: "https://github.com/arcanemachine/postgres_to_ecto",
       docs: [main: "readme", extras: ["README.md", "CHANGELOG.md"]],
       package: package(),
       test_coverage: [tool: ExUnit]
@@ -37,7 +37,7 @@ defmodule PgToEcto.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/arcanemachine/pg_to_ecto"},
+      links: %{"GitHub" => "https://github.com/arcanemachine/postgres_to_ecto"},
       files: ["lib", ".formatter.exs", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE"]
     ]
   end

@@ -8,23 +8,23 @@ Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Do
 
 Phase 9 (`0.1.0` Release) local release commit and lightweight tag are complete at `6b7eac4` / `v0.1.0`; the public `pg_to_ecto` `0.1.0` publication has been reported.
 
-Phase 10 (`pg_to_ecto` Retirement and `postgres_to_ecto` Rename) is executing under the approved Architect-direct route. Task 10.1 is complete, verified, user-waived for a separate acceptance prompt, and architecture-accepted. Local release commit `5b7bb22` (`chore: release v0.1.1`) and lightweight tag `v0.1.1` form the old-package retirement boundary. The local checkout is now `/workspace/projects/postgres_to_ecto`, and Task 10.2 is ready for dispatch for the direct rename to `postgres_to_ecto` `0.1.2`. Version history continues in one repository; no compatibility aliases or automatic old-format handling are included. After the replacement is public and verified, the user publishes the old retirement patch and retires both old Hex versions with reason `renamed`.
+Phase 10 (`pg_to_ecto` Retirement and `postgres_to_ecto` Rename) is locally release-ready under the approved Architect-direct route and intermediate-acceptance waiver. Task 10.1 is complete at release commit `5b7bb22` / tag `v0.1.1`. Task 10.2 is complete, verified, and architecture-accepted; release commit `chore: release v0.1.2` and lightweight tag `v0.1.2` form the renamed-package boundary. The checkout is `/workspace/projects/postgres_to_ecto`. No compatibility aliases or automatic old-format handling are included. User-owned remote repository rename, pushes, package publication, and old-version retirement remain.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
-The tracked files `demo/lib/pg_to_ecto_demo/customer.ex`, `demo/lib/pg_to_ecto_demo/order.ex`, and `demo/lib/pg_to_ecto_demo/invoice.ex` are the accepted Phase 8 canonical outputs. Preserve them as integrated review evidence; do not delete or overwrite them outside the generator's managed-region contract.
+The tracked files `demo/lib/postgres_to_ecto_demo/customer.ex`, `demo/lib/postgres_to_ecto_demo/order.ex`, and `demo/lib/postgres_to_ecto_demo/invoice.ex` are the renamed accepted canonical outputs. Preserve them as integrated review evidence; do not delete or overwrite them outside the generator's managed-region contract.
 
 ## Current owner
 
-Architect, for direct Phase 10 execution coordination.
+User, for the public repository rename, pushes, Hex publications, and Hex retirement actions.
 
 ## Next intended owner
 
-A fresh Worker, for Task 10.2 (direct rename to `postgres_to_ecto` `0.1.2`).
+Architect, for credential-free post-publication verification after the user reports completing the remote sequence.
 
 ## Next intended action
 
-Architect commits the clean Task 10.2 coordination transition and dispatches Task 10.2 to a fresh Worker at `/workspace/projects/postgres_to_ecto`. Architect then reviews, verifies, records architecture acceptance under the user's intermediate-gate waiver, creates `chore: release v0.1.2`, and tags `v0.1.2`. The next user-facing report is the combined release-ready evidence and exact user-owned remote instructions unless a genuine blocker appears.
+User follows the exact remote sequence in `plans/phase-10-package-rename/README.md`: rename the public repository, update `origin`, push `main` plus tags `v0.1.1` and `v0.1.2`, publish and verify `postgres_to_ecto` `0.1.2`, publish `pg_to_ecto` `0.1.1` from its tag, and retire old versions `0.1.0` and `0.1.1`. Agents do not perform these credential-bearing operations.
 
 ## Current gates
 
@@ -34,8 +34,9 @@ Architect commits the clean Task 10.2 coordination transition and dispatches Tas
 - The execution-ready plan and two task packets are complete; Architect-direct coordination is approved.
 - Task 10.1 is complete, verified, and architecture-accepted. Local release commit `5b7bb22` and lightweight tag `v0.1.1` are complete.
 - The local checkout rename to `/workspace/projects/postgres_to_ecto` is complete; the remote URL remains unchanged pending the user-owned repository rename.
+- Task 10.2 is complete, verified, and architecture-accepted under the user's separate-intermediate-acceptance waiver. Its local release commit and lightweight tag are complete.
+- Both local release boundaries are ready for user-owned remote operations.
 - The user approved the complete plan and expressly waived separate intermediate acceptance prompts through both local release-ready states.
-- The selected route and waiver authorize ordinary in-plan dispatch, review, correction, verification, acceptance recording, local release commits, and lightweight tags without further permission requests.
 - Remote repository rename, Git pushes, Hex publication, package retirement, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
 - Coordination-document centralization under `/workspace/projects/_plans` remains separate and unapproved for this phase.
 - Wave 2 or later capability work is not activated.
@@ -59,7 +60,9 @@ Phase 9 architecture acceptance revalidated the release candidate on 2026-09-26.
 
 Task 10.1 acceptance on 2026-09-26 confirmed a documentation-and-metadata-only `pg_to_ecto` `0.1.1` patch. Root formatting, warnings-as-errors compilation, 64 tests, documentation generation, and diff checks passed. Demo formatting, warnings-as-errors compilation, and 31 disposable-PostgreSQL tests passed. Runtime source and dependencies are unchanged from `v0.1.0`. The exact archive contained only intended package files, had checksum `8c3a2845056679da20f9f4639864cc102c4ca8470daf2c502fdbf5b76e01c55c`, and was removed after inspection.
 
-These are recovery facts, not substitutes for the remaining Task 10.2 and user-owned public-release gates.
+Task 10.2 architecture acceptance on 2026-09-26 confirmed a direct rename with unchanged behavior, dependencies, supported capability, PostgreSQL source authority, and safety posture. Root formatting, warnings-as-errors compilation, 65 tests, documentation generation, and diff checks passed. Demo formatting, warnings-as-errors compilation, 31 disposable-PostgreSQL tests, and database cleanup passed. The rename audit found old identifiers only in migration guidance, immutable history, and migration-proof test literals. The exact `postgres_to_ecto` `0.1.2` archive contained only intended package files, had checksum `2c0068b3e90f74554eb0e5d6339e5f4f895a9fe7b08effcfe25db60df7f8129f`, and was removed after inspection.
+
+These are recovery facts, not substitutes for the remaining user-owned public-release gates.
 
 ## Authoritative pointers
 
@@ -69,14 +72,14 @@ These are recovery facts, not substitutes for the remaining Task 10.2 and user-o
 - Accepted release-candidate documentation: `README.md` and `CHANGELOG.md`
 - Active Phase 10 rename and retirement plan: `plans/phase-10-package-rename/README.md`
 - Completed Task 10.1 packet: `plans/phase-10-package-rename/task-01-retirement-patch.md`
-- Ready Task 10.2 packet: `plans/phase-10-package-rename/task-02-in-place-rename.md`
+- Completed Task 10.2 packet: `plans/phase-10-package-rename/task-02-in-place-rename.md`
 
 ## Authority boundaries
 
 No current authority exists for:
 
 - discarding or rewriting accepted work;
-- work outside the approved Phase 9 plan and route;
+- work outside the approved Phase 10 plan and route;
 - remote tags, Git pushes, Hex publication, release publication, or credential use by an agent;
 - Wave 2 or later capability work;
 - company-system, company-data, or non-disposable database access.

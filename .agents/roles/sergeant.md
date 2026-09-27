@@ -5,7 +5,7 @@ title: Sergeant project supplement
 
 # Sergeant project supplement
 
-Purpose: add PgToEcto-specific recovery, dispatch, review, verification, acceptance, and closeout rules to the universal Sergeant contract.
+Purpose: add PostgresToEcto-specific recovery, dispatch, review, verification, acceptance, and closeout rules to the universal Sergeant contract.
 
 ## Startup and recovery
 
@@ -48,7 +48,7 @@ After accepting a task, update state and dispatch the next ready task automatica
 
 ## Review and correction
 
-Review changed code, tests, generated output, documentation, and working-tree state against the packet. For PgToEcto, pay special attention to:
+Review changed code, tests, generated output, documentation, and working-tree state against the packet. For PostgresToEcto, pay special attention to:
 
 - source Repo read-only behavior;
 - bounded catalog queries and supported mapping fidelity;

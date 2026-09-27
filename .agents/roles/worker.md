@@ -5,7 +5,7 @@ title: Worker project supplement
 
 # Worker project supplement
 
-Purpose: add PgToEcto-specific assignment, execution, verification, safety, and reporting rules to the universal Worker contract.
+Purpose: add PostgresToEcto-specific assignment, execution, verification, safety, and reporting rules to the universal Worker contract.
 
 ## Startup and assignment latch
 

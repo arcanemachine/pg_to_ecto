@@ -1,5 +1,5 @@
 [
-  import_deps: [:ecto, :ecto_sql, :pg_to_ecto],
+  import_deps: [:ecto, :ecto_sql, :postgres_to_ecto],
   inputs: [
     "{mix,.formatter}.exs",
     "config/**/*.exs",

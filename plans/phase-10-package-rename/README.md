@@ -3,8 +3,8 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Task 10.1 released locally; checkout renamed; Task 10.2 ready for dispatch
-- Current owner: Architect, for direct coordination through the `v0.1.2` release-ready state
+- Execution status: Both local release boundaries complete; user-owned remote sequence pending
+- Current owner: User, for repository rename, pushes, publications, and old-version retirement
 - Selected execution route: Architect-direct coordination
 - Old-package release: `pg_to_ecto` `0.1.1`, no-code retirement patch
 - Renamed release: `postgres_to_ecto` `0.1.2`, direct in-place rename
@@ -30,10 +30,10 @@ This is a breaking namespace rename, not a compatibility layer. Existing users r
 - The accepted `0.1.0` release commit is `6b7eac4` with lightweight tag `v0.1.0`. Commit `0423a22` records the subsequent publication handoff.
 - The local `pg_to_ecto` `0.1.1` release commit is `5b7bb22`, and lightweight tag `v0.1.1` points exactly to it.
 - The checkout has been renamed to `/workspace/projects/postgres_to_ecto`; its remote remains `git@github.com:arcanemachine/pg_to_ecto.git` until the user-owned remote repository rename.
-- The current application/package version is `0.1.1`; Task 10.2 performs the package and source rename to `0.1.2`.
-- The implementation uses `pg_to_ecto` and `PgToEcto` throughout package metadata, application configuration, library modules, Mix task names, paths, tests, demo code, generated output, managed markers, diagnostics, documentation, and process guidance.
+- The current application/package is `postgres_to_ecto` `0.1.2`. Task 10.2 renamed package metadata, application configuration, library modules, Mix task names, paths, tests, demo code, generated output, managed markers, diagnostics, documentation, and process guidance.
+- The renamed release passed architecture acceptance with no blocking findings. The exact package archive checksum is `2c0068b3e90f74554eb0e5d6339e5f4f895a9fe7b08effcfe25db60df7f8129f`.
 - The managed-output attribute is `@pg_to_ecto_key`; valid values begin with `pgte1:`. The key payload is derived from the target module and managed regions. A mechanical change to `@postgres_to_ecto_key` and `postgreste1:` can preserve the existing payload after users update their files, but the renamed generator will not parse the old attribute or prefix.
-- The working tree is clean at the Task 10.2 coordination transition. Generated documentation and package archives have been removed.
+- Generated documentation and package archives have been removed. The release commit contains only intended tracked source, documentation, test, demo, and coordination changes.
 - Coordination-document centralization under `/workspace/projects/_plans` remains separate from this phase because its stale modified destination requires its own resolved migration route.
 
 ## User-approved decisions

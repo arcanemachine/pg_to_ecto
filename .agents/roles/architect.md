@@ -5,7 +5,7 @@ title: Architect project supplement
 
 # Architect project supplement
 
-Purpose: add PgToEcto-specific recovery sources, planning artifacts, acceptance checks, and lifecycle handoffs to the universal Architect contract.
+Purpose: add PostgresToEcto-specific recovery sources, planning artifacts, acceptance checks, and lifecycle handoffs to the universal Architect contract.
 
 ## Startup and recovery
 
