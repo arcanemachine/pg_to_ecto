@@ -8,7 +8,7 @@ Phase 6 (Managed Regeneration and File Application), Phase 7 (Mix-task UX and Do
 
 Phase 9 (`0.1.0` Release) local release commit and lightweight tag are complete at `6b7eac4` / `v0.1.0`; the public `pg_to_ecto` `0.1.0` publication has been reported.
 
-Phase 10 (`pg_to_ecto` Retirement and `postgres_to_ecto` Rename) is executing under the approved Architect-direct route. Task 10.1 is complete, verified, user-accepted, and architecture-accepted; local release commit `chore: release v0.1.1` and lightweight tag `v0.1.1` form the old-package retirement boundary. The next step renames the local checkout and dispatches Task 10.2 for `postgres_to_ecto` `0.1.2`. Version history continues in one repository; no compatibility aliases or automatic old-format handling are included. After the replacement is public and verified, the user publishes the old retirement patch and retires both old Hex versions with reason `renamed`.
+Phase 10 (`pg_to_ecto` Retirement and `postgres_to_ecto` Rename) is executing under the approved Architect-direct route. Task 10.1 is complete, verified, user-waived for a separate acceptance prompt, and architecture-accepted. Local release commit `5b7bb22` (`chore: release v0.1.1`) and lightweight tag `v0.1.1` form the old-package retirement boundary. The local checkout is now `/workspace/projects/postgres_to_ecto`, and Task 10.2 is ready for dispatch for the direct rename to `postgres_to_ecto` `0.1.2`. Version history continues in one repository; no compatibility aliases or automatic old-format handling are included. After the replacement is public and verified, the user publishes the old retirement patch and retires both old Hex versions with reason `renamed`.
 
 The accepted Phase 6/7 tree and reset-safe coordination artifacts are committed. Preserve the accepted behavior and do not reset, clean, discard, or overwrite it.
 
@@ -24,7 +24,7 @@ A fresh Worker, for Task 10.2 (direct rename to `postgres_to_ecto` `0.1.2`).
 
 ## Next intended action
 
-Architect creates the accepted `chore: release v0.1.1` commit and lightweight `v0.1.1` tag, renames the local checkout to `/workspace/projects/postgres_to_ecto`, aligns durable paths, and dispatches Task 10.2 to a fresh Worker. The next planned user-facing execution gate is acceptance of the exact `postgres_to_ecto` `0.1.2` release candidate.
+Architect commits the clean Task 10.2 coordination transition and dispatches Task 10.2 to a fresh Worker at `/workspace/projects/postgres_to_ecto`. Architect then reviews, verifies, records architecture acceptance under the user's intermediate-gate waiver, creates `chore: release v0.1.2`, and tags `v0.1.2`. The next user-facing report is the combined release-ready evidence and exact user-owned remote instructions unless a genuine blocker appears.
 
 ## Current gates
 
@@ -32,7 +32,9 @@ Architect creates the accepted `chore: release v0.1.1` commit and lightweight `v
 - The published status of `pg_to_ecto` `0.1.0` was reported by Sergeant; exact post-publication verification is not yet recorded.
 - Phase 10's `pg_to_ecto` `0.1.1` no-code retirement patch, in-place rename, `postgres_to_ecto` `0.1.2` continuation, no-alias posture, and Hex retirement sequence are user-approved.
 - The execution-ready plan and two task packets are complete; Architect-direct coordination is approved.
-- Task 10.1 is complete, verified, and architecture-accepted. The user approved the complete plan and expressly waived separate intermediate acceptance prompts through both local release-ready states; its local release commit and lightweight tag are authorized.
+- Task 10.1 is complete, verified, and architecture-accepted. Local release commit `5b7bb22` and lightweight tag `v0.1.1` are complete.
+- The local checkout rename to `/workspace/projects/postgres_to_ecto` is complete; the remote URL remains unchanged pending the user-owned repository rename.
+- The user approved the complete plan and expressly waived separate intermediate acceptance prompts through both local release-ready states.
 - The selected route and waiver authorize ordinary in-plan dispatch, review, correction, verification, acceptance recording, local release commits, and lightweight tags without further permission requests.
 - Remote repository rename, Git pushes, Hex publication, package retirement, credential use, and other irreversible remote actions remain user-owned and are not authorized for agents.
 - Coordination-document centralization under `/workspace/projects/_plans` remains separate and unapproved for this phase.
@@ -67,7 +69,7 @@ These are recovery facts, not substitutes for the remaining Task 10.2 and user-o
 - Accepted release-candidate documentation: `README.md` and `CHANGELOG.md`
 - Active Phase 10 rename and retirement plan: `plans/phase-10-package-rename/README.md`
 - Completed Task 10.1 packet: `plans/phase-10-package-rename/task-01-retirement-patch.md`
-- Next Task 10.2 packet: `plans/phase-10-package-rename/task-02-in-place-rename.md`
+- Ready Task 10.2 packet: `plans/phase-10-package-rename/task-02-in-place-rename.md`
 
 ## Authority boundaries
 

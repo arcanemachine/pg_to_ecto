@@ -3,8 +3,8 @@
 ## Lifecycle status
 
 - Planning status: Complete and execution-ready
-- Execution status: Task 10.1 accepted; local `v0.1.1` release boundary in progress
-- Current owner: Architect, for direct coordination through both release-ready states
+- Execution status: Task 10.1 released locally; checkout renamed; Task 10.2 ready for dispatch
+- Current owner: Architect, for direct coordination through the `v0.1.2` release-ready state
 - Selected execution route: Architect-direct coordination
 - Old-package release: `pg_to_ecto` `0.1.1`, no-code retirement patch
 - Renamed release: `postgres_to_ecto` `0.1.2`, direct in-place rename
@@ -28,11 +28,12 @@ This is a breaking namespace rename, not a compatibility layer. Existing users r
 
 - `pg_to_ecto` `0.1.0` has been reported as published on Hex. Exact package and HexDocs verification must be repeated before release work changes public state.
 - The accepted `0.1.0` release commit is `6b7eac4` with lightweight tag `v0.1.0`. Commit `0423a22` records the subsequent publication handoff.
-- The current checkout is `/workspace/projects/pg_to_ecto`, and its remote is `git@github.com:arcanemachine/pg_to_ecto.git`.
-- The current application/package version is `0.1.0`.
+- The local `pg_to_ecto` `0.1.1` release commit is `5b7bb22`, and lightweight tag `v0.1.1` points exactly to it.
+- The checkout has been renamed to `/workspace/projects/postgres_to_ecto`; its remote remains `git@github.com:arcanemachine/pg_to_ecto.git` until the user-owned remote repository rename.
+- The current application/package version is `0.1.1`; Task 10.2 performs the package and source rename to `0.1.2`.
 - The implementation uses `pg_to_ecto` and `PgToEcto` throughout package metadata, application configuration, library modules, Mix task names, paths, tests, demo code, generated output, managed markers, diagnostics, documentation, and process guidance.
 - The managed-output attribute is `@pg_to_ecto_key`; valid values begin with `pgte1:`. The key payload is derived from the target module and managed regions. A mechanical change to `@postgres_to_ecto_key` and `postgreste1:` can preserve the existing payload after users update their files, but the renamed generator will not parse the old attribute or prefix.
-- The current working tree contains only the uncommitted Phase 10 planning artifacts. Generated documentation output has been removed.
+- The working tree is clean at the Task 10.2 coordination transition. Generated documentation and package archives have been removed.
 - Coordination-document centralization under `/workspace/projects/_plans` remains separate from this phase because its stale modified destination requires its own resolved migration route.
 
 ## User-approved decisions

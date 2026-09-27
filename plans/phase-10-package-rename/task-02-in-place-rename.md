@@ -2,7 +2,7 @@
 
 ## Status
 
-Blocked until Task 10.1 is accepted, committed as `chore: release v0.1.1`, tagged `v0.1.1`, and the coordinator renames the local checkout root to `/workspace/projects/postgres_to_ecto`.
+Ready for dispatch to a fresh Worker. Task 10.1 is accepted and committed as `chore: release v0.1.1`; lightweight tag `v0.1.1` points to that release commit; the local checkout root is `/workspace/projects/postgres_to_ecto`.
 
 ## Owner
 
