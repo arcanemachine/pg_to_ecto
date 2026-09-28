@@ -8,7 +8,7 @@ Add PostgresToEcto to a development-only dependency in the consumer project:
 
 ```elixir
 defp deps do
-  [{:postgres_to_ecto, "~> 0.1.2", runtime: false}]
+  [{:postgres_to_ecto, "~> 0.1.3", runtime: false}]
 end
 ```
 
