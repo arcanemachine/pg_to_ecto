@@ -33,22 +33,6 @@ config :postgres_to_ecto, generator: MyApp.PostgresToEcto
 
 Each selected table must name its Ecto module. Output paths are project-relative and must stay inside the Mix project. Unqualified table names use the Repo's `:migration_default_prefix`, or `public` when it is not configured.
 
-## Migrating from `pg_to_ecto`
-
-The `postgres_to_ecto` `0.1.2` release is a breaking rename with no compatibility aliases. Commit your work, apply and review these mechanical replacements, then run a dry run:
-
-- Change the dependency from `:pg_to_ecto` to `:postgres_to_ecto` and use `~> 0.1.2`.
-- Change the formatter import from `:pg_to_ecto` to `:postgres_to_ecto`.
-- Change the application configuration key from `:pg_to_ecto` to `:postgres_to_ecto`.
-- Change `PgToEcto` module references to `PostgresToEcto`.
-- Change `mix pg_to_ecto.generate` to `mix postgres_to_ecto.generate`.
-- Change generated `use PgToEcto.Schema` and `use PgToEcto.Migration` lines to their `PostgresToEcto` equivalents.
-- Change `@pg_to_ecto_key` to `@postgres_to_ecto_key`.
-- Change the managed-key prefix from `pgte1:` to `postgreste1:` and leave the encoded payload unchanged.
-- Change project-local paths containing `pg_to_ecto` to `postgres_to_ecto`.
-
-Do not run `--force` merely to cross the rename boundary: force replacement can discard user-owned content in a file that still uses the old marker. Commit your work and review every mechanical replacement before running `mix postgres_to_ecto.generate --dry-run`.
-
 ## Generate
 
 From the consumer project:
